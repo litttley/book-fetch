@@ -15,12 +15,12 @@ jobs:
       
  
       
-      - name: Build book-fetch
-        with:
-          cmd: deno compile  -A main.js  # will run `yarn build:prod` command
+      
       
       - name: Run cli
         run: |
+          
+          deno compile  -A main.js
 
           mkdir build
 
