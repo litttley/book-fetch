@@ -17,7 +17,7 @@ jobs:
       
       - name: Build book-fetch
         with:
-          cmd: deno compile  # will run `yarn build:prod` command
+          cmd: deno compile  -A main.js  # will run `yarn build:prod` command
       
       - name: Run cli
         run: |
