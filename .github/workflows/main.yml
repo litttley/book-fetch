@@ -1,0 +1,45 @@
+# .github/workflows/netlify.yml
+name: Build and Deploy to Netlify
+on:
+  push:
+  pull_request:
+jobs:
+  build:
+    runs-on:  windows-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      # ( Build to ./dist or other directory... )
+      - name: Install deno
+        uses: denolib/setup-deno@master
+      
+ 
+      
+      - name: Build book-fetch
+        with:
+          cmd: deno compile  # will run `yarn build:prod` command
+      
+      - name: Run cli
+        run: |
+
+          mkdir build
+
+          move book-fetch.exe build
+
+
+      - name: Deploy to Netlify
+        uses: nwtgck/actions-netlify@v2.0
+        with:
+          publish-dir: './build'
+          production-branch: master
+          github-token: ${{ secrets.MY_TOKEN }}
+          deploy-message: "Deploy from GitHub Actions"
+          enable-pull-request-comment: false
+          enable-commit-comment: true
+          overwrites-pull-request-comment: true
+        env:
+          NETLIFY_AUTH_TOKEN: 'nfp_ZrMJKZ7p7QHLFsY9zwVNx5o7Nb7PMoVqec86'
+          NETLIFY_SITE_ID: 'ee5f65b6-1d1f-410b-9ba4-fe3e7bf58360'
+        timeout-minutes: 3
+
+
