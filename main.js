@@ -2,6 +2,7 @@ import yargs from "https://deno.land/x/yargs/deno.ts";
 
 import * as Hathitrust from "./hathitrust.js";
 import * as Nl from "./nl.js";
+import * as Ko from "./kostma.js";
 
 // Learn more at https://deno.land/manual/examples/module_metadata#concepts
 if (import.meta.main) {
@@ -148,6 +149,75 @@ if (import.meta.main) {
         await Nl.config();
       },
     )
+
+    .command(
+      "koget",
+      "下载高丽大学图书馆(http://kostma.korea.ac.kr/)",
+      (yargs) => {
+        return yargs.option("uci", {
+          type: "string",
+          description: "文件id",
+          alias: "u",
+          demandOption: true,
+        })
+          .option("start", {
+            type: "string",
+            description: "起始页",
+            alias: "s",
+            demandOption: true,
+          }).option("end", {
+            type: "string",
+            description: "终止页",
+            alias: "e",
+            demandOption: true,
+          });
+      },
+      async (argv) => {
+        // console.info('2333')
+        console.info(argv);
+
+        const urls = Ko.generateUrls(
+          argv.uci,
+       
+          parseInt(argv.start),
+          parseInt(argv.end),
+        );
+        console.log(urls);
+        await Deno.mkdir("koFiles", { recursive: true });
+        // //打断顺序
+        // urls.sort(() => Math.random() - 0.5)
+        // console.log(urls)
+        await Ko.downLoadImages(urls);
+      },
+    )
+    .command(
+      "rkoget",
+      "如果有失败记录(文件位于koFiles/undownLoad.txt)则重新下载,每次操作完成后需要手动删除历史记录,然后再下",
+      (yargs) => {
+        return yargs;
+      },
+      async (argv) => {
+        const urls = await Nl.undownLoad();
+        console.log(urls);
+
+        if (urls.length > 0) {
+          await Nl.downLoadImages(urls);
+        } else {
+          console.log("已全完下载!");
+        }
+      },
+    )
+    .command(
+      "koconfig",
+      "生成配置文koconfig.json(文件位于koFiles/koconfig.json)",
+      (yargs) => {
+        return yargs;
+      },
+      async (argv) => {
+        await Ko.config();
+      },
+    )
+
     .example(
       "book-fetch.exe haget  -i hvd.32044067943118  -s 1 -e 305 ",
       "下载示例说明",
@@ -166,8 +236,25 @@ if (import.meta.main) {
       "book-fetch.exe nlconfig ",
       "生成配置文件(位于nlFiles/nlConfig.toml)",
     )
+
+    .example(
+      "book-fetch.exe  koget -u RIKS+CRMA+KSM-WZ.1893.0000-20090716.AS_SA_244 -s 1 -e 57   ",
+      "koget下载示例",
+    )
+    .example("book-fetch.exe rkoget  ", "rkoget重试示例")
+    .example(
+      "book-fetch.exe koconfig ",
+      "生成配置文件(位于koFiles/koConfig.toml)",
+    )
+
+   
     .strictCommands()
     .scriptName("book-fetch.exe")
     .demandCommand(1)
     .parse();
 }
+
+
+//http://kostma.korea.ac.kr/viewer/viewerDes?uci=RIKS+CRMA+KSM-WZ.1865.0000-20170331.KY_W_283&bookNum=&pageNum=
+
+//http://kostma.korea.ac.kr/viewer/viewerDes?uci=RIKS+CRMA+KSM-WZ.1893.0000-20090716.AS_SA_244&bookNum=&pageNum=
