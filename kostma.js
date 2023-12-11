@@ -25,7 +25,6 @@ const downLoad = async (url, page, config) => {
       "Host": "viewer.nl.go.kr",
       "User-Agent":
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36 Edg/118.0.2088.76",
- 
     },
   });
 
@@ -83,9 +82,9 @@ export const downLoadImages = async (urls) => {
   console.log("下载配置\n");
   console.info(config);
 
-//   if (config?.headers?.Cookie == "") {
-//     throw "cookie为必填项,请使用koConfig命令生成配置文件设置";
-//   }
+  //   if (config?.headers?.Cookie == "") {
+  //     throw "cookie为必填项,请使用koConfig命令生成配置文件设置";
+  //   }
 
   for (var i = 0; i < urls.length; i++) {
     try {
@@ -140,13 +139,14 @@ export const undownLoad = async () => {
   return urls;
 };
 
-export const generateUrls = (fileId,   pageStart, pageEnd) => {
+export const generateUrls = (fileId, pageStart, pageEnd) => {
   let urls = [];
   let pages = pageEnd + 1;
   for (var i = pageStart; i < pages; i++) {
-    let fill=i+''
-    let url =
-      `http://kostma.korea.ac.kr/data/des/${fileId}/IMG/AS_SA_244_001/${fill.padStart(4,"0")}.jpg`;
+    let fill = i + "";
+    let url = `http://kostma.korea.ac.kr/data/des/${fileId}/IMG/AS_SA_244_001/${
+      fill.padStart(4, "0")
+    }.jpg`;
     console.log(url);
     urls.push({ page: i, url: url });
   }

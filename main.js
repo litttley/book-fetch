@@ -149,7 +149,6 @@ if (import.meta.main) {
         await Nl.config();
       },
     )
-
     .command(
       "koget",
       "下载高丽大学图书馆(http://kostma.korea.ac.kr/)",
@@ -178,7 +177,6 @@ if (import.meta.main) {
 
         const urls = Ko.generateUrls(
           argv.uci,
-       
           parseInt(argv.start),
           parseInt(argv.end),
         );
@@ -217,7 +215,6 @@ if (import.meta.main) {
         await Ko.config();
       },
     )
-
     .example(
       "book-fetch.exe haget  -i hvd.32044067943118  -s 1 -e 305 ",
       "下载示例说明",
@@ -236,7 +233,6 @@ if (import.meta.main) {
       "book-fetch.exe nlconfig ",
       "生成配置文件(位于nlFiles/nlConfig.toml)",
     )
-
     .example(
       "book-fetch.exe  koget -u RIKS+CRMA+KSM-WZ.1893.0000-20090716.AS_SA_244 -s 1 -e 57   ",
       "koget下载示例",
@@ -246,14 +242,11 @@ if (import.meta.main) {
       "book-fetch.exe koconfig ",
       "生成配置文件(位于koFiles/koConfig.toml)",
     )
-
-   
     .strictCommands()
     .scriptName("book-fetch.exe")
     .demandCommand(1)
     .parse();
 }
-
 
 //http://kostma.korea.ac.kr/viewer/viewerDes?uci=RIKS+CRMA+KSM-WZ.1865.0000-20170331.KY_W_283&bookNum=&pageNum=
 
