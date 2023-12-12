@@ -1,9 +1,13 @@
 name: Main
 
+
 on:
   push:
-    tags:
-      - "v*.*.*"
+  pull_request:
+# on:
+#   push:
+#     tags:
+#       - "v*.*.*"
 
 jobs:
   build:
