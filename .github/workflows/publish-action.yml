@@ -38,4 +38,6 @@ jobs:
             build/book-fetch_aarch64_apple_darwin
             build/book-fetch_x86_64_apple_darwin 
             build/book-fetch_x86_64_windows_msvc.exe
+          
+          token: ${{  secrets.MY_TOKEN }}
          
