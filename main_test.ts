@@ -1,6 +1,21 @@
-import { assertEquals } from "https://deno.land/std@0.208.0/assert/mod.ts";
-import { add } from "./main.js";
+ 
+import { Command } from "https://deno.land/x/cliffy@v1.0.0-rc.3/command/mod.ts";
 
 Deno.test(function addTest() {
-  assertEquals(add(2, 3), 5);
+ console.log("test")
 });
+
+
+
+Deno.test('12',async ()=> {
+
+  let s =await new Command()
+  .name("cliffy")
+  .version("0.1.0")
+  .description("Command line framework for Deno")
+  .parse(Deno.args);
+  console.log(s)
+ });
+ 
+ 
+ 

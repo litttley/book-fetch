@@ -7,6 +7,8 @@ import * as Ko from "./kostma.js";
 // Learn more at https://deno.land/manual/examples/module_metadata#concepts
 if (import.meta.main) {
   yargs(Deno.args)
+    .usage("book-fetch [command]")
+    .wrap(200)
     .command("haget", "下载hathitrust.org图书", (yargs) => {
       return yargs.option("id", {
         type: "string",
@@ -222,7 +224,7 @@ if (import.meta.main) {
     .example("book-fetch.exe rhaget ", "重试示例说明")
     .example(
       "book-fetch.exe haconfig ",
-      "生成配置文件(位于haFiles/rhaConfig.toml)",
+      "生成配置文件(位于haFiles/rhaConfig.toml)\n",
     )
     .example(
       "book-fetch.exe nlget -c CNTS-00109637789 -v 1 -s 1 -e 3  ",
@@ -231,7 +233,7 @@ if (import.meta.main) {
     .example("book-fetch.exe rnlget  ", "rnlget下载示例")
     .example(
       "book-fetch.exe nlconfig ",
-      "生成配置文件(位于nlFiles/nlConfig.toml)",
+      "生成配置文件(位于nlFiles/nlConfig.toml)\n",
     )
     .example(
       "book-fetch.exe  koget -u RIKS+CRMA+KSM-WZ.1893.0000-20090716.AS_SA_244 -s 1 -e 57   ",
@@ -244,6 +246,10 @@ if (import.meta.main) {
     )
     .strictCommands()
     .scriptName("book-fetch.exe")
+    .version("v1.0.0")
+    .epilog("copyright 2023")
+ 
+ 
     .demandCommand(1)
     .parse();
 }
