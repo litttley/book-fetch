@@ -22,13 +22,13 @@ jobs:
 
           mkdir build
 
-          deno compile  -A --target x86_64-unknown-linux-gnu --output build/x86_64-unknown-linux-gnu  main.js
+          deno compile  -A --target x86_64-unknown-linux-gnu --output build/book-fetch_x86_64_unknown_linux_gnu  main.js
         
-          deno compile  -A --target aarch64-apple-darwin --output  build/aarch64-apple-darwin   main.js
+          deno compile  -A --target aarch64-apple-darwin --output  build/book-fetch_aarch64_apple_darwin   main.js
         
-          deno compile  -A --target x86_64-apple-darwin --output  build/x86_64-apple-darwin   main.js
+          deno compile  -A --target x86_64-apple-darwin --output  build/book-fetch_x86_64_apple_darwin   main.js
         
-          deno compile  -A --target x86_64-pc-windows-msvc --output   build/x86_64-pc-windows-msvc.exe   main.js
+          deno compile  -A --target x86_64-pc-windows-msvc --output   build/book-fetch_x86_64_windows_msvc.exe   main.js
 
           
 
