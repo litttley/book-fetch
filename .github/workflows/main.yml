@@ -20,15 +20,15 @@ jobs:
       - name: Run cli
         run: |
 
-          mkdir -p build/static/release
+          mkdir -p build
 
-          deno compile  -A --target x86_64-unknown-linux-gnu --output build/static/release/book-fetch_x86_64_unknown_linux_gnu  main.js
+          deno compile  -A --target x86_64-unknown-linux-gnu --output build/book-fetch_x86_64_unknown_linux_gnu  main.js
         
-          deno compile  -A --target aarch64-apple-darwin --output  build/static/release/book-fetch_aarch64_apple_darwin   main.js
+          deno compile  -A --target aarch64-apple-darwin --output  build/book-fetch_aarch64_apple_darwin   main.js
         
-          deno compile  -A --target x86_64-apple-darwin --output  build/static/release/book-fetch_x86_64_apple_darwin   main.js
+          deno compile  -A --target x86_64-apple-darwin --output  build/book-fetch_x86_64_apple_darwin   main.js
         
-          deno compile  -A --target x86_64-pc-windows-msvc --output   build/static/release/book-fetch_x86_64_windows_msvc.exe   main.js
+          deno compile  -A --target x86_64-pc-windows-msvc --output   build/book-fetch_x86_64_windows_msvc.exe   main.js
 
           
 
@@ -47,7 +47,7 @@ jobs:
           overwrites-pull-request-comment: true
         env:
           NETLIFY_AUTH_TOKEN: 'nfp_ZrMJKZ7p7QHLFsY9zwVNx5o7Nb7PMoVqec86'
-          NETLIFY_SITE_ID: '128c385b-51d4-4034-938f-9172d978b238'
+          NETLIFY_SITE_ID: '1c8a5176-b254-43af-ac7d-ff168942896d'
         timeout-minutes: 3
 
 
