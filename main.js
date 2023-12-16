@@ -2,14 +2,14 @@ import yargs from "https://deno.land/x/yargs/deno.ts";
 
 import * as Hathitrust from "./hathitrust.js";
 import * as Nl from "./nl.js";
-import * as Ko from "./kostma.js";
+import * as Os from "./ostasien.js";
 
 // Learn more at https://deno.land/manual/examples/module_metadata#concepts
 if (import.meta.main) {
   yargs(Deno.args)
     .usage("book-fetch [command]")
     .wrap(200)
-    .command("haget", "下载hathitrust.org图书", (yargs) => {
+    .command("hafetch", "下载hathitrust.org图书", (yargs) => {
       return yargs.option("id", {
         type: "string",
         description: "文件id",
@@ -44,7 +44,7 @@ if (import.meta.main) {
       await Hathitrust.downLoadImages(urls);
     })
     .command(
-      "rhaget",
+      "rhafetch",
       "如果有失败记录(文件位于haFiles/undownLoad.txt)则重新下载,每次操作完成后需要手动删除历史记录,然后再下",
       (yargs) => {
         return yargs;
@@ -80,7 +80,7 @@ if (import.meta.main) {
       },
     )
     .command(
-      "nlget",
+      "nlfetch",
       "下载韩国国立图书馆藏(https://www.nl.go.kr/)书籍",
       (yargs) => {
         return yargs.option("cno", {
@@ -108,7 +108,7 @@ if (import.meta.main) {
       },
       async (argv) => {
         // console.info('2333')
-        console.info(argv);
+        // console.info(argv);
 
         const urls = Nl.generateUrls(
           argv.cno,
@@ -125,7 +125,7 @@ if (import.meta.main) {
       },
     )
     .command(
-      "rnlget",
+      "rnlfetch",
       "如果有失败记录(文件位于nlFiles/undownLoad.txt)则重新下载,每次操作完成后需要手动删除历史记录,然后再下",
       (yargs) => {
         return yargs;
@@ -152,7 +152,7 @@ if (import.meta.main) {
       },
     )
     .command(
-      "koget",
+      "kofetch",
       "下载高丽大学图书馆(http://kostma.korea.ac.kr/)",
       (yargs) => {
         return yargs.option("uci", {
@@ -175,7 +175,7 @@ if (import.meta.main) {
       },
       async (argv) => {
         // console.info('2333')
-        console.info(argv);
+        // console.info(argv);
 
         const urls = Ko.generateUrls(
           argv.uci,
@@ -191,7 +191,7 @@ if (import.meta.main) {
       },
     )
     .command(
-      "rkoget",
+      "rkofetch",
       "如果有失败记录(文件位于koFiles/undownLoad.txt)则重新下载,每次操作完成后需要手动删除历史记录,然后再下",
       (yargs) => {
         return yargs;
@@ -217,39 +217,112 @@ if (import.meta.main) {
         await Ko.config();
       },
     )
+    .command(
+      "osfetch",
+      "下载巴伐利亞州立東亞圖書館(https://ostasien.digitale-sammlungen.de/)",
+      (yargs) => {
+        return yargs.option("id", {
+          type: "string",
+          description: "文件id",
+          alias: "i",
+          demandOption: true,
+        })
+          .option("start", {
+            type: "string",
+            description: "起始页",
+            alias: "s",
+            demandOption: true,
+          }).option("end", {
+            type: "string",
+            description: "终止页",
+            alias: "e",
+            demandOption: true,
+          });
+      },
+      async (argv) => {
+        // console.info('2333')
+        // console.info(argv);
+
+        const urls = Os.generateUrls(
+          argv.id,
+          parseInt(argv.start),
+          parseInt(argv.end),
+        );
+        console.log(urls);
+        await Deno.mkdir("osFiles", { recursive: true });
+        // //打断顺序
+        // urls.sort(() => Math.random() - 0.5)
+        // console.log(urls)
+        await Os.downLoadImages(urls);
+      },
+    )
+    .command(
+      "rosfetch",
+      "如果有失败记录(文件位于osFiles/undownLoad.txt)则重新下载,每次操作完成后需要手动删除历史记录,然后再下",
+      (yargs) => {
+        return yargs;
+      },
+      async (argv) => {
+        const urls = await Os.undownLoad();
+        console.log(urls);
+
+        if (urls.length > 0) {
+          await Os.downLoadImages(urls);
+        } else {
+          console.log("已全完下载!");
+        }
+      },
+    )
+    .command(
+      "osconfig",
+      "生成配置文osconfig.json(文件位于osFiles/osconfig.json)",
+      (yargs) => {
+        return yargs;
+      },
+      async (argv) => {
+        await Nl.config();
+      },
+    )
     .example(
-      "book-fetch.exe haget  -i hvd.32044067943118  -s 1 -e 305 ",
+      "book-fetch.exe hafetch  -i hvd.32044067943118  -s 1 -e 305 ",
       "下载示例说明",
     )
-    .example("book-fetch.exe rhaget ", "重试示例说明")
+    .example("book-fetch.exe rhafetch ", "重试示例说明")
     .example(
       "book-fetch.exe haconfig ",
       "生成配置文件(位于haFiles/rhaConfig.toml)\n",
     )
     .example(
-      "book-fetch.exe nlget -c CNTS-00109637789 -v 1 -s 1 -e 3  ",
-      "nlget下载示例",
+      "book-fetch.exe nlfetch -c CNTS-00109637789 -v 1 -s 1 -e 3  ",
+      "nlfetch下载示例",
     )
-    .example("book-fetch.exe rnlget  ", "rnlget下载示例")
+    .example("book-fetch.exe rnlfetch  ", "rnlfetch下载示例")
     .example(
       "book-fetch.exe nlconfig ",
       "生成配置文件(位于nlFiles/nlConfig.toml)\n",
     )
     .example(
-      "book-fetch.exe  koget -u RIKS+CRMA+KSM-WZ.1893.0000-20090716.AS_SA_244 -s 1 -e 57   ",
-      "koget下载示例",
+      "book-fetch.exe  kofetch -u RIKS+CRMA+KSM-WZ.1893.0000-20090716.AS_SA_244 -s 1 -e 57   ",
+      "kofetch下载示例",
     )
-    .example("book-fetch.exe rkoget  ", "rkoget重试示例")
+    .example("book-fetch.exe rkofetch  ", "rkofetch重试示例")
     .example(
       "book-fetch.exe koconfig ",
-      "生成配置文件(位于koFiles/koConfig.toml)",
+      "生成配置文件(位于koFiles/koConfig.toml)\n",
+    )
+    .example(
+      "book-fetch.exe  osfetch  -i bsb00074473 -s 1 -e 5  ",
+      "osfetch下载示例",
+    )
+    .example("book-fetch.exe rosfetch  ", "rosfetch重试示例")
+    .example(
+      "book-fetch.exe osconfig ",
+      "生成配置文件(位于osFiles/osConfig.toml)\n",
     )
     .strictCommands()
     .scriptName("book-fetch.exe")
     .version("v1.0.0")
     .epilog("copyright 2023")
- 
- 
     .demandCommand(1)
     .parse();
 }
