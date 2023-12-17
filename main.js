@@ -4,6 +4,7 @@ import * as Hathitrust from "./hathitrust.js";
 import * as Nl from "./nl.js";
 import * as Os from "./ostasien.js";
 import * as Ko from "./kostma.js";
+import * as GitHubAction from "./githubAction.js";
 
 // Learn more at https://deno.land/manual/examples/module_metadata#concepts
 if (import.meta.main) {
@@ -53,9 +54,7 @@ if (import.meta.main) {
         return yargs;
       },
       async (argv) => {
-
         console.log("bookFetchStart:rhafetch");
-
 
         const urls = await Hathitrust.undownLoad();
         //打断顺序
@@ -72,7 +71,7 @@ if (import.meta.main) {
     )
     .command(
       "haconfig",
-      "生成配置文haconfig.json(文件位于haFiles/haconfig.json)",
+      "生成配置文haconfig.json(文件位于haFiles/haconfig.toml)\n",
       (yargs) => {
         return yargs;
       },
@@ -141,7 +140,6 @@ if (import.meta.main) {
         return yargs;
       },
       async (argv) => {
-
         console.log("bookFetchStart:rnlfetch");
 
         const urls = await Nl.undownLoad();
@@ -158,7 +156,7 @@ if (import.meta.main) {
     )
     .command(
       "nlconfig",
-      "生成配置文nlconfig.json(文件位于nlFiles/nlconfig.json)",
+      "生成配置文nlconfig.json(文件位于nlFiles/nlconfig.toml)\n",
       (yargs) => {
         return yargs;
       },
@@ -213,7 +211,6 @@ if (import.meta.main) {
         return yargs;
       },
       async (argv) => {
-
         console.log("bookFetchStart:rkofetch");
         const urls = await Nl.undownLoad();
         console.log(urls);
@@ -229,7 +226,7 @@ if (import.meta.main) {
     )
     .command(
       "koconfig",
-      "生成配置文koconfig.json(文件位于koFiles/koconfig.json)",
+      "生成配置文koconfig.json(文件位于koFiles/koconfig.toml)\n",
       (yargs) => {
         return yargs;
       },
@@ -285,7 +282,6 @@ if (import.meta.main) {
         return yargs;
       },
       async (argv) => {
-
         console.log("bookFetchStart:rosfetch");
         const urls = await Os.undownLoad();
         console.log(urls);
@@ -301,12 +297,78 @@ if (import.meta.main) {
     )
     .command(
       "osconfig",
-      "生成配置文osconfig.json(文件位于osFiles/osconfig.json)",
+      "生成配置文osconfig.json(文件位于osFiles/osconfig.toml)\n",
       (yargs) => {
         return yargs;
       },
       async (argv) => {
         await Nl.config();
+      },
+    )
+    .command(
+      "action",
+      "运行后端服务",
+      (yargs) => {
+        return yargs.option("github", {
+          type: "string",
+          description: "指定平台",
+          alias: "g",
+          demandOption: true,
+        })
+          .option("filename", {
+            type: "string",
+            description: "文件名默认为(files)",
+            alias: "f",
+            demandOption: false,
+          })
+          .option("command", {
+            type: "string",
+            description: "执行命令",
+            alias: "c",
+            demandOption: true,
+          });
+      },
+      async (argv) => {
+        // console.info('2333')
+        console.log("bookFetchActionStart:github");
+        console.info(argv);
+        let fileName = "files";
+        if (argv?.filename) {
+          fileName = argv?.filename;
+        }
+        let command = argv?.command;
+        console.log(fileName);
+        try {
+          const config = await GitHubAction.readConfig();
+          let result = await GitHubAction.addTask({
+            fileName,
+            command,
+            config,
+          });
+          const { url, number, title } = result;
+          console.log("任务:" + title + "#" + number);
+          console.log("详情:" + url);
+          console.log("提示:使用");
+        } catch (error) {
+          console.log(error);
+        }
+
+        console.log("bookFetchActionEnd:github");
+        Deno.exit(0);
+      },
+    )
+    .command(
+      "gacconfig",
+      "生成配置文gacConfig.toml(文件位于gacFiles/gacConfig.toml)",
+      (yargs) => {
+        return yargs;
+      },
+      async (argv) => {
+        try {
+          await GitHubAction.config();
+        } catch (error) {
+          console.log(error);
+        }
       },
     )
     .example(
@@ -334,7 +396,7 @@ if (import.meta.main) {
     .example("book-fetch.exe rkofetch  ", "rkofetch重试示例")
     .example(
       "book-fetch.exe koconfig ",
-      "生成配置文件(位于koFiles/koConfig.toml)",
+      "生成配置文件(位于koFiles/koConfig.toml)\n",
     )
     .strictCommands()
     .scriptName("book-fetch.exe")

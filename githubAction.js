@@ -1,0 +1,164 @@
+import * as Toml from "https://deno.land/std@0.208.0/toml/mod.ts";
+import * as GithubRestApi from "./githubRestApi.js";
+
+export const addTask = async ({ fileName, command, config }) => {
+  let body = "";
+  if (command.includes("osfetch")) {
+    body = `osFiles#${command.replace(".exe", "")}`;
+  } else if (command.includes("hafetch")) {
+    body = `haFiles#${command.replace(".exe", "")}`;
+  } else if (command.includes("nlfetch")) {
+    body = `nlFiles#${command.replace(".exe", "")}`;
+  } else if (command.includes("kofetch")) {
+    body = `koFiles#${command.replace(".exe", "")}`;
+  }
+
+  if (body == "") {
+    throw "指令输入错误";
+  }
+
+  console.log(body);
+
+  let s = await GithubRestApi.openIssue({
+    title: fileName,
+    body: body,
+    config: config,
+  });
+  const { data } = s;
+
+  return data;
+};
+
+export const listTask = async ({ size }) => {
+  const { data } = await GithubRestApi.ListRunJobs({ event: "issues" });
+  const { total_count, workflow_runs } = data;
+  const workflows = workflow_runs.map((item) => {
+    return {
+      run_id: item.id,
+      workflow_id: item.workflow_id,
+      display_title: item.display_title,
+    };
+  });
+  console.log(workflow_runs);
+
+  let workflowResult = [];
+  for (const workflow of workflows) {
+    try {
+      const { data: jobsData } = await GithubRestApi.getJobs({
+        run_id: workflow.run_id,
+      });
+      const job_id = jobsData.jobs[0].id;
+
+      const { data: logData } = await GithubRestApi.getJobLogs({ job_id });
+      console.log(logData);
+      let logContentArr = logData.split(/[(\r\n)\r\n]+/);
+      let effectLogArr = [];
+      let isTrue = false;
+      for (const item of logContentArr) {
+        if (item.includes("bookFetchStart:")) {
+          isTrue = true;
+        }
+        if (item.includes("bookFetchEnd:")) {
+          isTrue = false;
+        }
+
+        if (item.includes("uploadFilesStart:")) {
+          isTrue = true;
+        }
+        if (item.includes("uploadFilesEnd:")) {
+          isTrue = false;
+        }
+
+        if (item.includes("WAIT") || item.includes("postfile.php")) {
+          continue;
+        }
+
+        if (isTrue) {
+          effectLogArr.push(item);
+        }
+      }
+      console.log(effectLogArr.join("\n"));
+    } catch (error) {
+      // throw '查询工作流异常'
+    }
+  }
+};
+async function checkFileExists(path) {
+  try {
+    await Deno.lstat(path);
+
+    return true;
+  } catch (err) {
+    if (!(err instanceof Deno.errors.NotFound)) {
+      throw err;
+    }
+
+    return false;
+  }
+}
+export const readConfig = async () => {
+  // if (await checkFileExists("actionFiles/actionConfig.toml")) {
+
+  // }
+
+  let config = null;
+
+  if (await checkFileExists("gacFiles/gacConfig.toml")) {
+    config = Toml.parse(Deno.readTextFileSync("gacFiles/gacConfig.toml"));
+  }
+
+  if (config == null) {
+    throw "请先配置github token";
+  }
+
+  console.log(config);
+
+  if (config?.github?.owner == "") {
+    throw "请在配置中添加github账号名";
+  }
+
+  if (config?.github?.repo == "") {
+    throw "请在配置中添加github仓库名";
+  }
+
+  if (config?.github?.authToken == "") {
+    throw "请在配置中添加github私人令牌";
+  }
+
+  return config;
+};
+
+export const config = async () => {
+  try {
+    let github = {
+      owner: "",
+      repo: "",
+      authToken: "",
+    };
+
+    let help = {
+      github: {
+        owner: "github账号名称",
+        repo: "github布署book-fetch-action的仓库名",
+        authToken: "github 私人访问令牌",
+      },
+    };
+    if (await checkFileExists("gacFiles/gacConfig.toml")) {
+      Deno.writeTextFileSync(
+        "gacFiles/gacConfig.toml",
+        Toml.stringify({ github: github, help: help }),
+      );
+    } else {
+      await Deno.mkdir("gacFiles", { recursive: true });
+
+      Deno.writeTextFileSync(
+        "gacFiles/gacConfig.toml",
+        Toml.stringify({ github: github, help: help }),
+      );
+    }
+
+    console.log("文件已生成:gacFiles/gacConfig.toml");
+  } catch (error) {
+    console.log(error);
+  }
+};
