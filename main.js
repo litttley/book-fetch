@@ -3,6 +3,7 @@ import yargs from "https://deno.land/x/yargs/deno.ts";
 import * as Hathitrust from "./hathitrust.js";
 import * as Nl from "./nl.js";
 import * as Os from "./ostasien.js";
+import * as Ko from "./kostma.js";
 
 // Learn more at https://deno.land/manual/examples/module_metadata#concepts
 if (import.meta.main) {
@@ -41,7 +42,7 @@ if (import.meta.main) {
       //打断顺序
       urls.sort(() => Math.random() - 0.5);
       // console.log(urls)
-      await Hathitrust.downLoadImages(urls);
+      await Hathitrust.downLnLoadImages(urls);
     })
     .command(
       "rhafetch",

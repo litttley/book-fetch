@@ -35,6 +35,7 @@ const downLoad = async (url, page, config) => {
   if (mime == "image/jpeg") {
     mime = "jpeg";
   } else {
+    console.log('cooke已过期请更新')
     throw "下载失败" + mime;
   }
 
