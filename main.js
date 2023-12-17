@@ -31,7 +31,7 @@ if (import.meta.main) {
     }, async (argv) => {
       // console.info('2333')
       // console.info(argv)
-
+      console.log("bookFetchStart:hafetch");
       const urls = Hathitrust.generateUrls(
         argv.id,
         parseInt(argv.start),
@@ -40,9 +40,11 @@ if (import.meta.main) {
       await Deno.mkdir("haFiles", { recursive: true });
 
       //打断顺序
-      urls.sort(() => Math.random() - 0.5);
+      // urls.sort(() => Math.random() - 0.5);
       // console.log(urls)
-      await Hathitrust.downLnLoadImages(urls);
+      await Hathitrust.downLoadImages(urls);
+
+      console.log("bookFetchEnd:hafetch");
     })
     .command(
       "rhafetch",
@@ -51,6 +53,10 @@ if (import.meta.main) {
         return yargs;
       },
       async (argv) => {
+
+        console.log("bookFetchStart:rhafetch");
+
+
         const urls = await Hathitrust.undownLoad();
         //打断顺序
         urls.sort(() => Math.random() - 0.5);
@@ -60,6 +66,8 @@ if (import.meta.main) {
         } else {
           console.log("已全完下载!");
         }
+
+        console.log("bookFetchEnd:rhafetch");
       },
     )
     .command(
@@ -108,8 +116,7 @@ if (import.meta.main) {
           });
       },
       async (argv) => {
-        // console.info('2333')
-        // console.info(argv);
+        console.log("bookFetchStart:nlfetch");
 
         const urls = Nl.generateUrls(
           argv.cno,
@@ -123,6 +130,8 @@ if (import.meta.main) {
         // urls.sort(() => Math.random() - 0.5)
         // console.log(urls)
         await Nl.downLoadImages(urls);
+
+        console.log("bookFetchEnd:nlfetch");
       },
     )
     .command(
@@ -132,6 +141,9 @@ if (import.meta.main) {
         return yargs;
       },
       async (argv) => {
+
+        console.log("bookFetchStart:rnlfetch");
+
         const urls = await Nl.undownLoad();
         console.log(urls);
 
@@ -140,6 +152,8 @@ if (import.meta.main) {
         } else {
           console.log("已全完下载!");
         }
+
+        console.log("bookFetchEnd:rnlfetch");
       },
     )
     .command(
@@ -175,8 +189,7 @@ if (import.meta.main) {
           });
       },
       async (argv) => {
-        // console.info('2333')
-        // console.info(argv);
+        console.log("bookFetchStart:kofetch");
 
         const urls = Ko.generateUrls(
           argv.uci,
@@ -189,6 +202,8 @@ if (import.meta.main) {
         // urls.sort(() => Math.random() - 0.5)
         // console.log(urls)
         await Ko.downLoadImages(urls);
+
+        console.log("bookFetchEnd:kofetch");
       },
     )
     .command(
@@ -198,6 +213,8 @@ if (import.meta.main) {
         return yargs;
       },
       async (argv) => {
+
+        console.log("bookFetchStart:rkofetch");
         const urls = await Nl.undownLoad();
         console.log(urls);
 
@@ -206,6 +223,8 @@ if (import.meta.main) {
         } else {
           console.log("已全完下载!");
         }
+
+        console.log("bookFetchEnd:rkofetch");
       },
     )
     .command(
@@ -242,7 +261,7 @@ if (import.meta.main) {
       },
       async (argv) => {
         // console.info('2333')
-        // console.info(argv);
+        console.log("bookFetchStart:osfetch");
 
         const urls = Os.generateUrls(
           argv.id,
@@ -255,6 +274,8 @@ if (import.meta.main) {
         // urls.sort(() => Math.random() - 0.5)
         // console.log(urls)
         await Os.downLoadImages(urls);
+
+        console.log("bookFetchEnd:osfetch");
       },
     )
     .command(
@@ -264,6 +285,8 @@ if (import.meta.main) {
         return yargs;
       },
       async (argv) => {
+
+        console.log("bookFetchStart:rosfetch");
         const urls = await Os.undownLoad();
         console.log(urls);
 
@@ -272,6 +295,8 @@ if (import.meta.main) {
         } else {
           console.log("已全完下载!");
         }
+
+        console.log("bookFetchEnd:rosfetch");
       },
     )
     .command(
@@ -309,16 +334,7 @@ if (import.meta.main) {
     .example("book-fetch.exe rkofetch  ", "rkofetch重试示例")
     .example(
       "book-fetch.exe koconfig ",
-      "生成配置文件(位于koFiles/koConfig.toml)\n",
-    )
-    .example(
-      "book-fetch.exe  osfetch  -i bsb00074473 -s 1 -e 5  ",
-      "osfetch下载示例",
-    )
-    .example("book-fetch.exe rosfetch  ", "rosfetch重试示例")
-    .example(
-      "book-fetch.exe osconfig ",
-      "生成配置文件(位于osFiles/osConfig.toml)\n",
+      "生成配置文件(位于koFiles/koConfig.toml)",
     )
     .strictCommands()
     .scriptName("book-fetch.exe")
