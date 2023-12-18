@@ -20,7 +20,8 @@ if (import.meta.main) {
         console.log("uploadFilesStart:");
 
         try {
-          await FileBig.uploadFileToFileBig(argv.file);
+       let url =    await FileBig.uploadFileToFileBig(argv.file);
+       await Deno.writeTextFile(`./${argv.file.replace(".7z","")}.txt`, "下载地址:"+url);
         } catch (error) {
           console.log(error);
         }
