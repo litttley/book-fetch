@@ -20,8 +20,11 @@ if (import.meta.main) {
         console.log("uploadFilesStart:");
 
         try {
-       let url =    await FileBig.uploadFileToFileBig(argv.file);
-       await Deno.writeTextFile(`./${argv.file.replace(".7z","")}.txt`, url);
+          let url = await FileBig.uploadFileToFileBig(argv.file);
+          await Deno.writeTextFile(
+            `./${argv.file.replace(".7z", "")}.txt`,
+            url,
+          );
         } catch (error) {
           console.log(error);
         }

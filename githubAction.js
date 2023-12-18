@@ -29,21 +29,24 @@ export const addTask = async ({ fileName, command, config }) => {
   return data;
 };
 
-export const listTaskResult = async ({  config,page,pageSize }) => {
-  const  {status,data}  = await GithubRestApi.listIssueComment({config,page:page,per_page:pageSize})
-  if(status !=200){
-    throw '数据查询异常'
+export const listTaskResult = async ({ config, page, pageSize }) => {
+  const { status, data } = await GithubRestApi.listIssueComment({
+    config,
+    page: page,
+    per_page: pageSize,
+  });
+  if (status != 200) {
+    throw "数据查询异常";
   }
 
-  const result = data.map(item=>{
-   return {shareUrl:item.body}
-  })
- 
+  const result = data.map((item) => {
+    return { shareUrl: item.body };
+  });
 
-  console.log(result)
+  console.log(result);
 
-  return result
-}
+  return result;
+};
 
 // export const listTask = async ({ size }) => {
 //   const { data } = await GithubRestApi.ListRunJobs({ event: "issues" });

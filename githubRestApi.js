@@ -24,45 +24,47 @@ export const openIssue = async ({ title, body, config }) => {
   console.log(response);
   return response;
 };
-export const listIssue = async ({  config,page ,per_page }) => {
+export const listIssue = async ({ config, page, per_page }) => {
   const octokit = new Octokit({
     auth: config.github.authToken,
-  })
+  });
 
- const resp =  await octokit.request(`GET /repos/${config.github.owner}/${config.github.repo}/issues`, {
-    owner: config.github.owner,
-    repo: config.github.repo,
-    per_page :per_page ,
-    page  :page  ,
-    headers: {
-      'X-GitHub-Api-Version': '2022-11-28'
-    }
-  })
+  const resp = await octokit.request(
+    `GET /repos/${config.github.owner}/${config.github.repo}/issues`,
+    {
+      owner: config.github.owner,
+      repo: config.github.repo,
+      per_page: per_page,
+      page: page,
+      headers: {
+        "X-GitHub-Api-Version": "2022-11-28",
+      },
+    },
+  );
 
-  return resp
-}
+  return resp;
+};
 
-
-
-export const listIssueComment= async ({  config,page ,per_page }) => {
+export const listIssueComment = async ({ config, page, per_page }) => {
   const octokit = new Octokit({
     auth: config.github.authToken,
-  })
+  });
 
- const resp =  await octokit.request(`GET /repos/${config.github.owner}/${config.github.repo}/issues/comments`, {
-    owner: config.github.owner,
-    repo: config.github.repo,
-    per_page :per_page ,
-    page  :page  ,
-    headers: {
-      'X-GitHub-Api-Version': '2022-11-28'
-    }
-  })
+  const resp = await octokit.request(
+    `GET /repos/${config.github.owner}/${config.github.repo}/issues/comments`,
+    {
+      owner: config.github.owner,
+      repo: config.github.repo,
+      per_page: per_page,
+      page: page,
+      headers: {
+        "X-GitHub-Api-Version": "2022-11-28",
+      },
+    },
+  );
 
-  return resp
-}
-
-
+  return resp;
+};
 
 export const ListRunJobs = async ({ event }) => {
   const octokit = new Octokit({

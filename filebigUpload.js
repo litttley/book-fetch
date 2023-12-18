@@ -158,5 +158,5 @@ export const uploadFileToFileBig = async (filePath) => {
 
   console.log("shareUrl:" + shareUrl);
 
-  return shareUrl
+  return shareUrl;
 };

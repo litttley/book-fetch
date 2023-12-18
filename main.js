@@ -310,13 +310,12 @@ if (import.meta.main) {
       "运行后端服务",
       (yargs) => {
         return yargs
-        
-        // .option("github", {
-        //   type: "string",
-        //   description: "指定平台",
-        //   alias: "g",
-        //   demandOption: true,
-        // })
+          // .option("github", {
+          //   type: "string",
+          //   description: "指定平台",
+          //   alias: "g",
+          //   demandOption: true,
+          // })
           .option("filename", {
             type: "string",
             description: "文件名默认为(files)",
@@ -350,7 +349,6 @@ if (import.meta.main) {
           const { url, number, title } = result;
           console.log("任务:" + title + "#" + number);
           console.log("详情:" + url);
-      
         } catch (error) {
           console.log(error);
         }
@@ -359,20 +357,18 @@ if (import.meta.main) {
         Deno.exit(0);
       },
     )
-
     .command(
       "actionresult",
       "查看记录",
       (yargs) => {
         return yargs
-        
-        // .option("github", {
-        //   type: "string",
-        //   description: "指定平台",
-        //   alias: "g",
-        //   demandOption: true,
-        // })
-        
+          // .option("github", {
+          //   type: "string",
+          //   description: "指定平台",
+          //   alias: "g",
+          //   demandOption: true,
+          // })
+
           .option("page", {
             type: "string",
             description: "查询第几页(默认第1页)",
@@ -385,9 +381,6 @@ if (import.meta.main) {
             alias: "ps",
             demandOption: false,
           });
-          ;
-
-          
       },
       async (argv) => {
         // console.info('2333')
@@ -401,13 +394,15 @@ if (import.meta.main) {
         if (argv?.pageSize) {
           pageSize = argv?.pageSize;
         }
-    
+
         try {
           const config = await GitHubAction.readConfig();
-          let result = await GitHubAction.listTaskResult({config, page:parseInt(page),pageSize:parseInt(pageSize)}) 
-          console.log(result.map(item=>item.shareUrl).join('\n'))
-          
-      
+          let result = await GitHubAction.listTaskResult({
+            config,
+            page: parseInt(page),
+            pageSize: parseInt(pageSize),
+          });
+          console.log(result.map((item) => item.shareUrl).join("\n"));
         } catch (error) {
           console.log(error);
         }
