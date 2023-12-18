@@ -306,15 +306,17 @@ if (import.meta.main) {
       },
     )
     .command(
-      "action",
+      "actionfetch",
       "运行后端服务",
       (yargs) => {
-        return yargs.option("github", {
-          type: "string",
-          description: "指定平台",
-          alias: "g",
-          demandOption: true,
-        })
+        return yargs
+        
+        // .option("github", {
+        //   type: "string",
+        //   description: "指定平台",
+        //   alias: "g",
+        //   demandOption: true,
+        // })
           .option("filename", {
             type: "string",
             description: "文件名默认为(files)",
@@ -348,7 +350,7 @@ if (import.meta.main) {
           const { url, number, title } = result;
           console.log("任务:" + title + "#" + number);
           console.log("详情:" + url);
-          console.log("提示:使用");
+      
         } catch (error) {
           console.log(error);
         }
@@ -357,9 +359,66 @@ if (import.meta.main) {
         Deno.exit(0);
       },
     )
+
     .command(
-      "gacconfig",
-      "生成配置文gacConfig.toml(文件位于gacFiles/gacConfig.toml)",
+      "actionresult",
+      "查看记录",
+      (yargs) => {
+        return yargs
+        
+        // .option("github", {
+        //   type: "string",
+        //   description: "指定平台",
+        //   alias: "g",
+        //   demandOption: true,
+        // })
+        
+          .option("page", {
+            type: "string",
+            description: "查询第几页(默认第1页)",
+            alias: "p",
+            demandOption: false,
+          })
+          .option("pageSize", {
+            type: "string",
+            description: "每页几条(默认一页5条数据)",
+            alias: "ps",
+            demandOption: false,
+          });
+          ;
+
+          
+      },
+      async (argv) => {
+        // console.info('2333')
+        console.log("bookFetchActionPageStart:github");
+        console.info(argv);
+        let page = "1";
+        let pageSize = "5";
+        if (argv?.page) {
+          page = argv?.page;
+        }
+        if (argv?.pageSize) {
+          pageSize = argv?.pageSize;
+        }
+    
+        try {
+          const config = await GitHubAction.readConfig();
+          let result = await GitHubAction.listTaskResult({config, page:parseInt(page),pageSize:parseInt(pageSize)}) 
+          console.log(result.map(item=>item.shareUrl).join('\n'))
+          
+      
+        } catch (error) {
+          console.log(error);
+        }
+
+        console.log("bookFetchActionPageEnd:github");
+        Deno.exit(0);
+      },
+    )
+    .command(
+      "actioncfg",
+      "生成配置文actionConfig.toml(文件位于gacFiles/actionConfig.toml)",
       (yargs) => {
         return yargs;
       },

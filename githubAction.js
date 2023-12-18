@@ -29,60 +29,76 @@ export const addTask = async ({ fileName, command, config }) => {
   return data;
 };
 
-export const listTask = async ({ size }) => {
-  const { data } = await GithubRestApi.ListRunJobs({ event: "issues" });
-  const { total_count, workflow_runs } = data;
-  const workflows = workflow_runs.map((item) => {
-    return {
-      run_id: item.id,
-      workflow_id: item.workflow_id,
-      display_title: item.display_title,
-    };
-  });
-  console.log(workflow_runs);
-
-  let workflowResult = [];
-  for (const workflow of workflows) {
-    try {
-      const { data: jobsData } = await GithubRestApi.getJobs({
-        run_id: workflow.run_id,
-      });
-      const job_id = jobsData.jobs[0].id;
-
-      const { data: logData } = await GithubRestApi.getJobLogs({ job_id });
-      console.log(logData);
-      let logContentArr = logData.split(/[(\r\n)\r\n]+/);
-      let effectLogArr = [];
-      let isTrue = false;
-      for (const item of logContentArr) {
-        if (item.includes("bookFetchStart:")) {
-          isTrue = true;
-        }
-        if (item.includes("bookFetchEnd:")) {
-          isTrue = false;
-        }
-
-        if (item.includes("uploadFilesStart:")) {
-          isTrue = true;
-        }
-        if (item.includes("uploadFilesEnd:")) {
-          isTrue = false;
-        }
-
-        if (item.includes("WAIT") || item.includes("postfile.php")) {
-          continue;
-        }
-
-        if (isTrue) {
-          effectLogArr.push(item);
-        }
-      }
-      console.log(effectLogArr.join("\n"));
-    } catch (error) {
-      // throw '查询工作流异常'
-    }
+export const listTaskResult = async ({  config,page,pageSize }) => {
+  const  {status,data}  = await GithubRestApi.listIssueComment({config,page:page,per_page:pageSize})
+  if(status !=200){
+    throw '数据查询异常'
   }
-};
+
+  const result = data.map(item=>{
+   return {shareUrl:item.body}
+  })
+ 
+
+  console.log(result)
+
+  return result
+}
+
+// export const listTask = async ({ size }) => {
+//   const { data } = await GithubRestApi.ListRunJobs({ event: "issues" });
+//   const { total_count, workflow_runs } = data;
+//   const workflows = workflow_runs.map((item) => {
+//     return {
+//       run_id: item.id,
+//       workflow_id: item.workflow_id,
+//       display_title: item.display_title,
+//     };
+//   });
+//   console.log(workflow_runs);
+
+//   let workflowResult = [];
+//   for (const workflow of workflows) {
+//     try {
+//       const { data: jobsData } = await GithubRestApi.getJobs({
+//         run_id: workflow.run_id,
+//       });
+//       const job_id = jobsData.jobs[0].id;
+
+//       const { data: logData } = await GithubRestApi.getJobLogs({ job_id });
+//       console.log(logData);
+//       let logContentArr = logData.split(/[(\r\n)\r\n]+/);
+//       let effectLogArr = [];
+//       let isTrue = false;
+//       for (const item of logContentArr) {
+//         if (item.includes("bookFetchStart:")) {
+//           isTrue = true;
+//         }
+//         if (item.includes("bookFetchEnd:")) {
+//           isTrue = false;
+//         }
+
+//         if (item.includes("uploadFilesStart:")) {
+//           isTrue = true;
+//         }
+//         if (item.includes("uploadFilesEnd:")) {
+//           isTrue = false;
+//         }
+
+//         if (item.includes("WAIT") || item.includes("postfile.php")) {
+//           continue;
+//         }
+
+//         if (isTrue) {
+//           effectLogArr.push(item);
+//         }
+//       }
+//       console.log(effectLogArr.join("\n"));
+//     } catch (error) {
+//       // throw '查询工作流异常'
+//     }
+//   }
+// };
 async function checkFileExists(path) {
   try {
     await Deno.lstat(path);
@@ -103,8 +119,8 @@ export const readConfig = async () => {
 
   let config = null;
 
-  if (await checkFileExists("gacFiles/gacConfig.toml")) {
-    config = Toml.parse(Deno.readTextFileSync("gacFiles/gacConfig.toml"));
+  if (await checkFileExists("actionFiles/actionConfig.toml")) {
+    config = Toml.parse(Deno.readTextFileSync("actionFiles/actionConfig.toml"));
   }
 
   if (config == null) {
@@ -143,21 +159,21 @@ export const config = async () => {
         authToken: "github 私人访问令牌",
       },
     };
-    if (await checkFileExists("gacFiles/gacConfig.toml")) {
+    if (await checkFileExists("actionFiles/actionConfig.toml")) {
       Deno.writeTextFileSync(
-        "gacFiles/gacConfig.toml",
+        "actionFiles/actionConfig.toml",
         Toml.stringify({ github: github, help: help }),
       );
     } else {
-      await Deno.mkdir("gacFiles", { recursive: true });
+      await Deno.mkdir("actionFiles", { recursive: true });
 
       Deno.writeTextFileSync(
-        "gacFiles/gacConfig.toml",
+        "actionFiles/actionConfig.toml",
         Toml.stringify({ github: github, help: help }),
       );
     }
 
-    console.log("文件已生成:gacFiles/gacConfig.toml");
+    console.log("文件已生成:actionFiles/actionConfig.toml");
   } catch (error) {
     console.log(error);
   }
