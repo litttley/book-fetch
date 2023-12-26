@@ -407,13 +407,13 @@ if (import.meta.main) {
         let command = argv?.command;
         console.log(command);
         console.log(fileName);
-        let newCommand = command.replaceAll("'",'"')
- 
+        let newCommand = command.replaceAll("'", '"');
+
         try {
           const config = await GitHubAction.readConfig();
           let result = await GitHubAction.addTask({
             fileName,
-            command:newCommand,
+            command: newCommand,
             config,
           });
           const { url, number, title } = result;
@@ -472,6 +472,7 @@ if (import.meta.main) {
             page: parseInt(page),
             pageSize: parseInt(pageSize),
           });
+
           console.log(result.map((item) => item.shareUrl).join("\n"));
         } catch (error) {
           console.log(error);

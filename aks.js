@@ -199,16 +199,15 @@ export const downLoaddezoomify = async () => {
       .pipeThrough(new DecompressionStream("gzip"))
       .pipeTo(dest.writable);
 
-      const cmd = new Deno.Command('sh', {
-        args: ["-c","ls"],
-        stdout: "piped",
-        stderr: "inherit",
-        // cwd: "aksFiles",
-      });
-      const output = await cmd.output();
-      const logs = new TextDecoder().decode(output.stdout).trim();
-      console.log(logs);
-
+    const cmd = new Deno.Command("sh", {
+      args: ["-c", "ls"],
+      stdout: "piped",
+      stderr: "inherit",
+      // cwd: "aksFiles",
+    });
+    const output = await cmd.output();
+    const logs = new TextDecoder().decode(output.stdout).trim();
+    console.log(logs);
   }
 
   if (platform == "mac") {

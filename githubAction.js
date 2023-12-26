@@ -11,7 +11,7 @@ export const addTask = async ({ fileName, command, config }) => {
     body = `nlFiles#${command.replace(".exe", "")}`;
   } else if (command.includes("kofetch")) {
     body = `koFiles#${command.replace(".exe", "")}`;
-  }else if(command.includes("akfetch")){
+  } else if (command.includes("akfetch")) {
     body = `aksFiles#${command.replace(".exe", "")}`;
   }
 

@@ -57,6 +57,8 @@ export const listIssueComment = async ({ config, page, per_page }) => {
       repo: config.github.repo,
       per_page: per_page,
       page: page,
+
+      direction: "desc",
       headers: {
         "X-GitHub-Api-Version": "2022-11-28",
       },
