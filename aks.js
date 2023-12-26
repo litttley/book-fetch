@@ -97,7 +97,7 @@ export const downLoadImages = async (urls) => {
       let path = "./dezoomify-rs.exe";
 
       if (platform !== "windows") {
-        path = "dezoomify-rs";
+        path = "./dezoomify-rs";
       }
 
       const cmd = new Deno.Command(path, {
