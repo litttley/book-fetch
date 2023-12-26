@@ -531,7 +531,7 @@ if (import.meta.main) {
     .strictCommands()
     .scriptName("book-fetch.exe")
     .version("v1.0.0")
-    .epilog("copyright 2023")
+    .epilog("copyright 2023 book-fetch")
     .demandCommand(1)
     .parse();
 }

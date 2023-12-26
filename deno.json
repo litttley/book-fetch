@@ -1,6 +1,6 @@
 {
   "tasks": {
     "start": "deno run  -A  --unstable  main.js",
-    "test": "deno run  -A  --unstable  main_test.js"
+    "test_aks": "deno test  -A  --unstable  ./test/test_aks.js"
   }
 }
