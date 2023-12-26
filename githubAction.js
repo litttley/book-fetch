@@ -11,13 +11,15 @@ export const addTask = async ({ fileName, command, config }) => {
     body = `nlFiles#${command.replace(".exe", "")}`;
   } else if (command.includes("kofetch")) {
     body = `koFiles#${command.replace(".exe", "")}`;
+  }else if(command.includes("akfetch")){
+    body = `aksFiles#${command.replace(".exe", "")}`;
   }
 
   if (body == "") {
     throw "指令输入错误";
   }
 
-  console.log(body);
+  // console.log(body);
 
   let s = await GithubRestApi.openIssue({
     title: fileName,
@@ -43,7 +45,7 @@ export const listTaskResult = async ({ config, page, pageSize }) => {
     return { shareUrl: item.body };
   });
 
-  console.log(result);
+  // console.log(result);
 
   return result;
 };

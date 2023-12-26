@@ -23,16 +23,16 @@ jobs:
           mkdir -p build
           mkdir book-fetch-action
           sudo apt install p7zip-full
-          deno compile  -A --target x86_64-unknown-linux-gnu --output build/book-fetch_x86_64_unknown_linux_gnu  main.js
+          deno compile  -A  --unstable --target x86_64-unknown-linux-gnu --output build/book-fetch_x86_64_unknown_linux_gnu  main.js
           #gitaction使用
-          deno compile  -A --target x86_64-unknown-linux-gnu --output book-fetch-action/book-fetch_linux_gnu  main.js
-          deno compile  -A --target x86_64-unknown-linux-gnu --output book-fetch-action/uploadFiles_linux_gnu  uploadFiles.js
+          deno compile  -A  --unstable --target x86_64-unknown-linux-gnu --output book-fetch-action/book-fetch_linux_gnu  main.js
+          deno compile  -A  --unstable --target x86_64-unknown-linux-gnu --output book-fetch-action/uploadFiles_linux_gnu  uploadFiles.js
         
-          deno compile  -A --target aarch64-apple-darwin --output  build/book-fetch_aarch64_apple_darwin   main.js
+          deno compile  -A  --unstable --target aarch64-apple-darwin --output  build/book-fetch_aarch64_apple_darwin   main.js
         
-          deno compile  -A --target x86_64-apple-darwin --output  build/book-fetch_x86_64_apple_darwin   main.js
+          deno compile  -A  --unstable --target x86_64-apple-darwin --output  build/book-fetch_x86_64_apple_darwin   main.js
         
-          deno compile  -A --target x86_64-pc-windows-msvc --output   build/book-fetch_x86_64_windows_msvc.exe   main.js
+          deno compile  -A  --unstable --target x86_64-pc-windows-msvc --output   build/book-fetch_x86_64_windows_msvc.exe   main.js
 
           
           7z a -t7z -r book-fetch-action.7z ./book-fetch-action/*

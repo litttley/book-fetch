@@ -405,6 +405,7 @@ if (import.meta.main) {
           fileName = argv?.filename;
         }
         let command = argv?.command;
+        console.log(command);
         console.log(fileName);
         try {
           const config = await GitHubAction.readConfig();

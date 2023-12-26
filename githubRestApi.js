@@ -21,7 +21,7 @@ export const openIssue = async ({ title, body, config }) => {
       body: body,
     },
   );
-  console.log(response);
+  // console.log(response);
   return response;
 };
 export const listIssue = async ({ config, page, per_page }) => {
