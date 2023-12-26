@@ -104,7 +104,7 @@ export const downLoadImages = async (urls) => {
         args: ["-l", urls[i].url, urls[i].page],
         stdout: "piped",
         stderr: "inherit",
-        cwd: "aksFiles",
+        // cwd: "aksFiles",
       });
       const output = await cmd.output();
       const logs = new TextDecoder().decode(output.stdout).trim();
