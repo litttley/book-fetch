@@ -407,11 +407,13 @@ if (import.meta.main) {
         let command = argv?.command;
         console.log(command);
         console.log(fileName);
+        let newCommand = command.replaceAll("'",'"')
+ 
         try {
           const config = await GitHubAction.readConfig();
           let result = await GitHubAction.addTask({
             fileName,
-            command,
+            command:newCommand,
             config,
           });
           const { url, number, title } = result;
@@ -521,7 +523,7 @@ if (import.meta.main) {
       "生成配置文件(位于koFiles/koConfig.toml)\n",
     )
     .example(
-      'book-fetch.exe akfetch "https://jsg.aks.ac.kr/viewer/viewIMok?dataId=K3-427%7C001#node?depth=2&upPath=001&dataId=001" -s 1 -e 2 ',
+      'book-fetch.exe akfetch -u "https://jsg.aks.ac.kr/viewer/viewIMok?dataId=K3-427%7C001#node?depth=2&upPath=001&dataId=001" -s 1 -e 2 ',
       "akfetch说明:url需要加引号",
     )
     .example("book-fetch.exe rakfetch", "rakfetch示例")
