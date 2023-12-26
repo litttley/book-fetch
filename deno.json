@@ -2,6 +2,5 @@
   "tasks": {
     "start": "deno run  -A  --unstable  main.js",
     "test": "deno run  -A  --unstable  main_test.js"
-    
   }
 }

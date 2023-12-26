@@ -2,13 +2,8 @@ import * as Toml from "https://deno.land/std@0.208.0/toml/mod.ts";
 
 // import { resolve } from "https://deno.land/std@0.210.0/path/mod.ts";
 
-export const generateUrls = async (url,pageStart,pageEnd) => {
-
-
+export const generateUrls = async (url, pageStart, pageEnd) => {
   try {
-
- 
-
     const response = await fetch(url, {
       method: "GET",
       // responseType: 'stream'
@@ -25,56 +20,44 @@ export const generateUrls = async (url,pageStart,pageEnd) => {
       },
     });
 
-    const html = await response.text()
+    const html = await response.text();
     //   console.log(html)
 
-
-
-
-
-    let lines = html.split("\n")
-    let text = ''
+    let lines = html.split("\n");
+    let text = "";
     for (const line of lines) {
       if (line.includes('"imgID"')) {
-        text += line
-
-
+        text += line;
       }
-
     }
 
+    let json = text.replace("imgItems:", "").replace("}],", "").trim() + "}]";
 
+    let arr = JSON.parse(json);
 
-    let json = text.replace("imgItems:", "").replace("}],", "").trim() + "}]"
-
-
-    let arr = JSON.parse(json)
-
-    let urls = arr.filter(item=>{
-      let id =parseInt(item.ID)
-      if(id>=pageStart &&  id<=pageEnd ){
-        return true
-      }else{
-        return false
+    let urls = arr.filter((item) => {
+      let id = parseInt(item.ID);
+      if (id >= pageStart && id <= pageEnd) {
+        return true;
+      } else {
+        return false;
       }
-    }).map(item => {
-      let imgID = item.imgID
-      let id = parseInt(item.ID)
-      let url = `https://jsgimage.aks.ac.kr/data/images/${imgID.slice(0, 4)}/${imgID.slice(4, 6)}/${imgID.slice(6, 8)}/dzi/${imgID}.xml`
-      return {url:url,page:id}
-    })
+    }).map((item) => {
+      let imgID = item.imgID;
+      let id = parseInt(item.ID);
+      let url = `https://jsgimage.aks.ac.kr/data/images/${imgID.slice(0, 4)}/${
+        imgID.slice(4, 6)
+      }/${imgID.slice(6, 8)}/dzi/${imgID}.xml`;
+      return { url: url, page: id };
+    });
 
     // console.log(urls)
 
-    return urls
+    return urls;
   } catch (error) {
-
-    console.log(error)
-
+    console.log(error);
   }
-  
 };
-
 
 export const downLoadImages = async (urls) => {
   let config = null;
@@ -102,26 +85,28 @@ export const downLoadImages = async (urls) => {
   //     throw "cookie为必填项,请使用koConfig命令生成配置文件设置";
   //   }
 
-  if (!(await checkFileExists("dezoomify-rs.exe") || await checkFileExists("dezoomify-rs"))) {
-    await downLoaddezoomify()
+  if (
+    !(await checkFileExists("dezoomify-rs.exe") ||
+      await checkFileExists("dezoomify-rs"))
+  ) {
+    await downLoaddezoomify();
   }
 
   for (var i = 0; i < urls.length; i++) {
     try {
-      console.log(urls[i].url)
+      console.log(urls[i].url);
       const cmd = new Deno.Command("./dezoomify-rs.exe", {
         args: ["-l", urls[i].url, urls[i].page],
         stdout: "piped",
         stderr: "inherit",
-        cwd: "aksFiles"
+        cwd: "aksFiles",
       });
-      const  output    = await cmd.output();
+      const output = await cmd.output();
       const logs = new TextDecoder().decode(output.stdout).trim();
-      console.log(logs)
-      if(!output.success){
-            throw '下载失败'
+      console.log(logs);
+      if (!output.success) {
+        throw "下载失败";
       }
-
     } catch (error) {
       console.log(error);
       await Deno.writeTextFile(
@@ -133,26 +118,28 @@ export const downLoadImages = async (urls) => {
   }
 };
 
-
 const downLoaddezoomify = async () => {
-  console.log('下载dezoomify-rs....')
+  console.log("下载dezoomify-rs....");
   const client = Deno.createHttpClient({ http2: true });
-  const response = await fetch("https://mirror.ghproxy.com/https://github.com/lovasoa/dezoomify-rs/releases/download/v2.11.2/dezoomify-rs.exe", {
-    method: "GET",
-    // responseType: 'stream'
-    headers: {
-      "Accept":
-        "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-      "Accept-Encoding": "gzip, deflate, br",
-      "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+  const response = await fetch(
+    "https://mirror.ghproxy.com/https://github.com/lovasoa/dezoomify-rs/releases/download/v2.11.2/dezoomify-rs.exe",
+    {
+      method: "GET",
+      // responseType: 'stream'
+      headers: {
+        "Accept":
+          "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
 
-      // "Host": "ttps://ostasien.digitale-sammlungen.de/",
-      "User-Agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36 Edg/118.0.2088.76",
-      //   "Cookie": `${config?.headers?.Cookie}`,
+        // "Host": "ttps://ostasien.digitale-sammlungen.de/",
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36 Edg/118.0.2088.76",
+        //   "Cookie": `${config?.headers?.Cookie}`,
+      },
+      client,
     },
-    client,
-  });
+  );
 
   let resHeaders = response.headers;
 
@@ -166,8 +153,6 @@ const downLoaddezoomify = async () => {
 
   let read = response.body;
 
-
-
   const file = await Deno.open(`./dezoomify-rs.exe`, {
     create: true,
     write: true,
@@ -177,8 +162,8 @@ const downLoaddezoomify = async () => {
 
   file.close();
   await Deno.mkdir("aksFiles", { recursive: true });
-  console.log('已下载dezoomify-rs....')
-}
+  console.log("已下载dezoomify-rs....");
+};
 async function checkFileExists(path) {
   try {
     await Deno.lstat(path);
@@ -216,8 +201,6 @@ export const config = async () => {
       },
     };
     if (await checkFileExists("aksFiles/aksConfig.toml")) {
-
-
       Deno.writeTextFileSync(
         "aksFiles/aksConfig.toml",
         Toml.stringify({ headers: headers, downLoad: downLoad, help: help }),

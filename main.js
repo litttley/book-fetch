@@ -306,7 +306,6 @@ if (import.meta.main) {
         await Nl.config();
       },
     )
-
     .command(
       "akfetch",
       "下载韩国收藏阁(https://jsg.aks.ac.kr/)",
@@ -327,7 +326,6 @@ if (import.meta.main) {
           alias: "e",
           demandOption: true,
         });
-
       },
       async (argv) => {
         // console.log(argv)
@@ -338,7 +336,7 @@ if (import.meta.main) {
           parseInt(argv.start),
           parseInt(argv.end),
         );
-        console.log(urls)
+        console.log(urls);
         await Aks.downLoadImages(urls);
 
         console.log("bookFetchEnd:akfetch");
@@ -374,7 +372,6 @@ if (import.meta.main) {
         await Aks.config();
       },
     )
-
     .command(
       "actionfetch",
       "运行后端服务",
@@ -522,9 +519,11 @@ if (import.meta.main) {
       "book-fetch.exe koconfig ",
       "生成配置文件(位于koFiles/koConfig.toml)\n",
     )
-
-    .example('book-fetch.exe akfetch "https://jsg.aks.ac.kr/viewer/viewIMok?dataId=K3-427%7C001#node?depth=2&upPath=001&dataId=001" -s 1 -e 2 ', "akfetch说明:url需要加引号")
-    .example('book-fetch.exe rakfetch', "rakfetch示例")
+    .example(
+      'book-fetch.exe akfetch "https://jsg.aks.ac.kr/viewer/viewIMok?dataId=K3-427%7C001#node?depth=2&upPath=001&dataId=001" -s 1 -e 2 ',
+      "akfetch说明:url需要加引号",
+    )
+    .example("book-fetch.exe rakfetch", "rakfetch示例")
     .example(
       "book-fetch.exe akconfig ",
       "生成配置文件(位于akFiles/akConfig.toml)\n",

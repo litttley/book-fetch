@@ -41,8 +41,6 @@ const downLoad = async (url, page, config) => {
 
   let read = response.body;
 
-
-
   const file = await Deno.open(`${"osFiles"}/${page}.${mime}`, {
     create: true,
     write: true,
