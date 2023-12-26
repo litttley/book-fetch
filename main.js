@@ -5,6 +5,7 @@ import * as Nl from "./nl.js";
 import * as Os from "./ostasien.js";
 import * as Ko from "./kostma.js";
 import * as GitHubAction from "./githubAction.js";
+import * as Aks from "./aks.js";
 
 // Learn more at https://deno.land/manual/examples/module_metadata#concepts
 if (import.meta.main) {
@@ -305,6 +306,75 @@ if (import.meta.main) {
         await Nl.config();
       },
     )
+
+    .command(
+      "akfetch",
+      "下载韩国收藏阁(https://jsg.aks.ac.kr/)",
+      (yargs) => {
+        return yargs.option("url", {
+          type: "string",
+          description: "文件url",
+          alias: "u",
+          demandOption: true,
+        }).option("start", {
+          type: "string",
+          description: "起始页",
+          alias: "s",
+          demandOption: true,
+        }).option("end", {
+          type: "string",
+          description: "终止页",
+          alias: "e",
+          demandOption: true,
+        });
+
+      },
+      async (argv) => {
+        // console.log(argv)
+        console.log("bookFetchStart:akfetch");
+        // Aks()
+        const urls = await Aks.generateUrls(
+          argv.url,
+          parseInt(argv.start),
+          parseInt(argv.end),
+        );
+        console.log(urls)
+        await Aks.downLoadImages(urls);
+
+        console.log("bookFetchEnd:akfetch");
+      },
+    )
+    .command(
+      "rakfetch",
+      "如果有失败记录(文件位于aksFiles/undownLoad.txt)则重新下载,每次操作完成后需要手动删除历史记录,然后再下",
+      (yargs) => {
+        return yargs;
+      },
+      async (argv) => {
+        console.log("bookFetchStart:rakfetch");
+        const urls = await Aks.undownLoad();
+        console.log(urls);
+
+        if (urls.length > 0) {
+          await Aks.downLoadImages(urls);
+        } else {
+          console.log("已全完下载!");
+        }
+
+        console.log("bookFetchEnd:rakfetch");
+      },
+    )
+    .command(
+      "akconfig",
+      "生成配置文akconfig.json(文件位于akFiles/akconfig.toml)\n",
+      (yargs) => {
+        return yargs;
+      },
+      async (argv) => {
+        await Aks.config();
+      },
+    )
+
     .command(
       "actionfetch",
       "运行后端服务",
@@ -452,6 +522,13 @@ if (import.meta.main) {
       "book-fetch.exe koconfig ",
       "生成配置文件(位于koFiles/koConfig.toml)\n",
     )
+
+    .example('book-fetch.exe akfetch "https://jsg.aks.ac.kr/viewer/viewIMok?dataId=K3-427%7C001#node?depth=2&upPath=001&dataId=001" -s 1 -e 2 ', "akfetch说明:url需要加引号")
+    .example('book-fetch.exe rakfetch', "rakfetch示例")
+    .example(
+      "book-fetch.exe akconfig ",
+      "生成配置文件(位于akFiles/akConfig.toml)\n",
+    )
     .strictCommands()
     .scriptName("book-fetch.exe")
     .version("v1.0.0")
@@ -459,6 +536,8 @@ if (import.meta.main) {
     .demandCommand(1)
     .parse();
 }
+
+// https://jsg.aks.ac.kr/viewer/viewIMok?dataId=K3-427%7C001#node?depth=2&upPath=001&dataId=001
 
 //http://kostma.korea.ac.kr/viewer/viewerDes?uci=RIKS+CRMA+KSM-WZ.1865.0000-20170331.KY_W_283&bookNum=&pageNum=
 

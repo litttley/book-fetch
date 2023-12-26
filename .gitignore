@@ -3,5 +3,7 @@ haFiles
 nlFiles
 koFiles
 osFiles
-gacFiles/
+gacFiles
+aksFiles
 actionFiles
+dezoomify-rs.exe
