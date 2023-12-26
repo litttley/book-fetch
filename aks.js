@@ -104,7 +104,7 @@ export const downLoadImages = async (urls) => {
         args: ["-l", urls[i].url, urls[i].page],
         stdout: "piped",
         stderr: "inherit",
-        // cwd: "aksFiles",
+        cwd: "aksFiles",
       });
       const output = await cmd.output();
       const logs = new TextDecoder().decode(output.stdout).trim();
@@ -190,7 +190,7 @@ export const downLoaddezoomify = async () => {
   if (platform == "linux") {
     console.log("解压linux");
     // await tgz.uncompress("./dezoomify-rs-linux.tgz", "./aksFiles");
-    const src = await Deno.open("./dezoomify-rs-linux.tgz", { read: true });
+    const src = await Deno.open(`./${fileName}`, { read: true });
     const dest = await Deno.open("./dezoomify-rs", {
       create: true,
       write: true,
@@ -198,6 +198,17 @@ export const downLoaddezoomify = async () => {
     await src.readable
       .pipeThrough(new DecompressionStream("gzip"))
       .pipeTo(dest.writable);
+
+      const cmd = new Deno.Command('sh', {
+        args: ["-c","ls"],
+        stdout: "piped",
+        stderr: "inherit",
+        // cwd: "aksFiles",
+      });
+      const output = await cmd.output();
+      const logs = new TextDecoder().decode(output.stdout).trim();
+      console.log(logs);
+
   }
 
   if (platform == "mac") {

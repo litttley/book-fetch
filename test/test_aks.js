@@ -6,7 +6,7 @@ import * as Aks from "../aks.js";
 Deno.test("downLoaddezoomify", async () => {
   try {
     const src = await Deno.open("dezoomify-rs-linux.tgz", { read: true });
-    const dest = await Deno.open("./dezoomify-rs-linux", {
+    const dest = await Deno.open("./dezoomify-rs", {
       create: true,
       write: true,
     });
