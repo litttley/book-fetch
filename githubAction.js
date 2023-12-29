@@ -183,3 +183,61 @@ export const config = async () => {
     console.log(error);
   }
 };
+
+export const runconfig = async () => {
+  try {
+    let text = Deno.readTextFileSync("./actionRunConfig.toml")
+
+    let textArr = text.split("\n")
+
+    let fileDir = null
+    let fileName = null
+    let command = ""
+    for (const item of textArr) {
+
+      if (item.includes('#bookfetch')) {
+        command = item
+        let paramArr = item.split('#').filter(item=>item!='')
+     
+        fileDir = paramArr[0]
+        command=paramArr[1]
+      
+        if (fileDir == 'haFiles') {
+          fileName = 'haConfig'
+        } else if (fileDir == "nlFiles") {
+          fileName = "nlConfig"
+        } else if (fileDir == "koFiles") {
+          fileName = "koConfig"
+        } else if (fileDir == "osFiles") {
+          fileName = "osConfig"
+        } else if (fileDir == "aksFiles") {
+          fileName = "aksConfig"
+        }
+
+        break
+      }
+  
+
+
+
+    }
+
+    console.log(fileDir)
+    console.log(fileName)
+    if (fileDir && fileName) {
+      console.log(fileDir)
+      let config = Toml.parse(text);
+
+      Deno.writeTextFileSync(
+        `${fileDir}/${fileName}.toml`,
+        Toml.stringify({ ...config, ...{ action: { command: command,dir:fileDir,fileName:fileName } } }),)
+    }
+
+    
+
+    console.log(`文件已生成:${fileDir}/${fileName}.toml`);
+  } catch (error) {
+    console.log(error);
+  }
+};
+

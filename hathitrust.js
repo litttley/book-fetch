@@ -75,8 +75,8 @@ export const generateUrls = (fileId, pageStart, pageEnd) => {
 export const downLoadImages = async (urls) => {
   let config = null;
 
-  if (await checkFileExists("haFiles/rhaConfig.toml")) {
-    config = Toml.parse(Deno.readTextFileSync("haFiles/rhaConfig.toml"));
+  if (await checkFileExists("haFiles/haConfig.toml")) {
+    config = Toml.parse(Deno.readTextFileSync("haFiles/haConfig.toml"));
   } else {
     config = {
       downLoad: {
@@ -179,23 +179,23 @@ export const config = async () => {
         },
       },
     };
-    if (await checkFileExists("haFiles/rhaConfig.toml")) {
+    if (await checkFileExists("haFiles/haConfig.toml")) {
       Deno.writeTextFileSync(
-        "haFiles/rhaConfig.toml",
+        "haFiles/haConfig.toml",
         Toml.stringify({ headers: headers, downLoad: downLoad, help: help }),
       );
 
-      // writeJsonSync('haFiles/rhaConfig.toml', { headers: headers, downLoad: downLoad, help: help }, { spaces: 2 });
+      // writeJsonSync('haFiles/haConfig.toml', { headers: headers, downLoad: downLoad, help: help }, { spaces: 2 });
     } else {
       await Deno.mkdir("haFiles", { recursive: true });
-      // writeJsonSync('haFiles/rhaConfig.toml', { headers: headers, downLoad: downLoad, help: help }, { spaces: 2 });
+      // writeJsonSync('haFiles/haConfig.toml', { headers: headers, downLoad: downLoad, help: help }, { spaces: 2 });
       Deno.writeTextFileSync(
-        "haFiles/rhaConfig.toml",
+        "haFiles/haConfig.toml",
         Toml.stringify({ headers: headers, downLoad: downLoad, help: help }),
       );
     }
 
-    console.log("文件已生成:haFiles/rhaConfig.toml");
+    console.log("文件已生成:haFiles/haConfig.toml");
   } catch (error) {
     console.log(error);
   }

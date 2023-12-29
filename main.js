@@ -303,7 +303,7 @@ if (import.meta.main) {
         return yargs;
       },
       async (argv) => {
-        await Nl.config();
+        await Os.config();
       },
     )
     .command(
@@ -491,6 +491,20 @@ if (import.meta.main) {
       async (argv) => {
         try {
           await GitHubAction.config();
+        } catch (error) {
+          console.log(error);
+        }
+      },
+    )
+    .command(
+      "actionruncfg",
+      "读取当前目录actionRunConfig.toml配置(主要用于github action服务器使用,本地不需要使用)",
+      (yargs) => {
+        return yargs;
+      },
+      async (argv) => {
+        try {
+          await GitHubAction.runconfig();
         } catch (error) {
           console.log(error);
         }
