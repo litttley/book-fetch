@@ -195,12 +195,16 @@ export const runconfig = async () => {
     let command = ""
     for (const item of textArr) {
 
-      if (item.includes('#bookfetch')) {
-        command = item
-        let paramArr = item.split('#').filter(item=>item!='')
+      if (item.startsWith('#')) {
+   
+        if(item.startsWith('#book-fetch')){
+          command=item.replace("#","")
+          continue
+        }
+        // let paramArr = item.split('#').filter(item=>item!='')
      
-        fileDir = paramArr[0]
-        command=paramArr[1]
+        fileDir = item.replace("#","")
+    
       
         if (fileDir == 'haFiles') {
           fileName = 'haConfig'
@@ -214,7 +218,7 @@ export const runconfig = async () => {
           fileName = "aksConfig"
         }
 
-        break
+      
       }
   
 
@@ -222,11 +226,13 @@ export const runconfig = async () => {
 
     }
 
-    console.log(fileDir)
-    console.log(fileName)
+    // console.log(fileDir)
+    // console.log(fileName)
     if (fileDir && fileName) {
-      console.log(fileDir)
+  
       let config = Toml.parse(text);
+
+    
 
       Deno.writeTextFileSync(
         `${fileDir}/${fileName}.toml`,
