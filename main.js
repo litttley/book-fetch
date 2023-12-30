@@ -388,10 +388,10 @@ if (import.meta.main) {
           alias: "h",
           // demandOption: true,
         })
-        .option("url", {
+        .option("id", {
           type: "string",
-          description: "文件url",
-          alias: "u",
+          description: "文件id",
+          alias: "i",
           demandOption: true,
         })
         
@@ -412,7 +412,7 @@ if (import.meta.main) {
         console.log("bookFetchStart:rmfetch");
         // Aks()
         const urls = await RM.generateUrls(
-          argv.url,
+          argv.id,
           parseInt(argv.start),
           parseInt(argv.end),
         );
