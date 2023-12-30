@@ -6,6 +6,7 @@ import * as Os from "./ostasien.js";
 import * as Ko from "./kostma.js";
 import * as GitHubAction from "./githubAction.js";
 import * as Aks from "./aks.js";
+import * as RM from "./rmda.js";
 
 // Learn more at https://deno.land/manual/examples/module_metadata#concepts
 if (import.meta.main) {
@@ -330,13 +331,15 @@ if (import.meta.main) {
       async (argv) => {
         // console.log(argv)
         console.log("bookFetchStart:akfetch");
-        // Aks()
+        // Aks
+       
         const urls = await Aks.generateUrls(
           argv.url,
           parseInt(argv.start),
           parseInt(argv.end),
         );
         console.log(urls);
+        await Deno.mkdir("askFiles", { recursive: true });
         await Aks.downLoadImages(urls);
 
         console.log("bookFetchEnd:akfetch");
@@ -372,6 +375,97 @@ if (import.meta.main) {
         await Aks.config();
       },
     )
+
+
+    .command(
+      "rmfetch",
+      "下载京都大学(https://rmda.kulib.kyoto-u.ac.jp/)",
+      (yargs) => {
+        return yargs
+        .option("height", {
+          type: "string",
+          description: "文件高度限制(默认下载最大)",
+          alias: "h",
+          // demandOption: true,
+        })
+        .option("url", {
+          type: "string",
+          description: "文件url",
+          alias: "u",
+          demandOption: true,
+        })
+        
+        .option("start", {
+          type: "string",
+          description: "起始页",
+          alias: "s",
+          demandOption: true,
+        }).option("end", {
+          type: "string",
+          description: "终止页",
+          alias: "e",
+          demandOption: true,
+        });
+      },
+      async (argv) => {
+        // console.log(argv)
+        console.log("bookFetchStart:rmfetch");
+        // Aks()
+        const urls = await RM.generateUrls(
+          argv.url,
+          parseInt(argv.start),
+          parseInt(argv.end),
+        );
+       let maxHeight =  argv?.height
+       let command =["-l"]
+       if(maxHeight){
+        command=['-h',parseInt(maxHeight) ]
+       }
+
+       
+        console.log(urls);
+ 
+   
+        await Deno.mkdir("rmFiles", { recursive: true });
+        await RM.downLoadImages(urls,command);
+
+        console.log("bookFetchEnd:rmfetch");
+      },
+    )
+    .command(
+      "rrmfetch",
+      "如果有失败记录(文件位于aksFiles/undownLoad.txt)则重新下载,每次操作完成后需要手动删除历史记录,然后再下",
+      (yargs) => {
+        return yargs;
+      },
+      async (argv) => {
+        console.log("bookFetchStart:rrmfetch");
+        const urls = await RM.undownLoad();
+     
+
+        if (urls) {
+       let command =    urls[0].command
+
+   
+          await RM.downLoadImages(urls,command);
+        } else {
+          console.log("已全完下载!");
+        }
+
+        console.log("bookFetchEnd:rrmfetch");
+      },
+    )
+    .command(
+      "rmconfig",
+      "生成配置文akconfig.json(文件位于rmFiles/rmconfig.toml)\n",
+      (yargs) => {
+        return yargs;
+      },
+      async (argv) => {
+        await RM.config();
+      },
+    )
+
     .command(
       "actionfetch",
       "运行后端服务",

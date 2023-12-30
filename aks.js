@@ -1,6 +1,7 @@
 import * as Toml from "https://deno.land/std@0.208.0/toml/mod.ts";
 import os from "https://deno.land/x/dos@v0.11.0/mod.ts";
-
+import { readline } from "https://deno.land/x/readline@v1.1.0/mod.ts";
+import moment from "npm:moment";
 export const generateUrls = async (url, pageStart, pageEnd) => {
   try {
     const response = await fetch(url, {
