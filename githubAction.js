@@ -233,9 +233,11 @@ export const runconfig = async () => {
 
       let config = Toml.parse(text);
       if (config?.undownLoad) {
+
+      
  
         Deno.writeTextFileSync(
-          `${fileDir}/undownLoad.txt`, config?.undownLoad.text)
+          `${fileDir}/undownLoad.txt`, config?.undownLoad.text.join('\n'))
           console.log(`文件已生成:${fileDir}/undownLoad.txt`);
       }
 
