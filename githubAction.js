@@ -189,56 +189,36 @@ export const runconfig = async () => {
     let text = Deno.readTextFileSync("./actionRunConfig.toml")
 
     let textArr = text.split("\n")
-
-    let fileDir = null
+    console.log(textArr)
+    let command = textArr[1].trim().replace("#", "")
+    let fileDir = textArr[0].trim().replace("#", "")
     let fileName = null
-    let command = ""
-    for (const item of textArr) {
-
-      if (item.startsWith('#')) {
-
-        if (item.startsWith('#book-fetch')) {
-          command = item.replace("#", "")
-          continue
-        }
-        // let paramArr = item.split('#').filter(item=>item!='')
-
-        fileDir = item.replace("#", "")
-
-
-        if (fileDir == 'haFiles') {
-          fileName = 'haConfig'
-        } else if (fileDir == "nlFiles") {
-          fileName = "nlConfig"
-        } else if (fileDir == "koFiles") {
-          fileName = "koConfig"
-        } else if (fileDir == "osFiles") {
-          fileName = "osConfig"
-        } else if (fileDir == "aksFiles") {
-          fileName = "aksConfig"
-        }
-
-
-      }
 
 
 
-
+    if (fileDir == 'haFiles') {
+      fileName = 'haConfig'
+    } else if (fileDir == "nlFiles") {
+      fileName = "nlConfig"
+    } else if (fileDir == "koFiles") {
+      fileName = "koConfig"
+    } else if (fileDir == "osFiles") {
+      fileName = "osConfig"
+    } else if (fileDir == "aksFiles") {
+      fileName = "aksConfig"
     }
-
-    // console.log(fileDir)
-    // console.log(fileName)
+ 
     if (fileDir && fileName) {
       await Deno.mkdir(fileDir, { recursive: true });
 
       let config = Toml.parse(text);
       if (config?.undownLoad) {
 
-      
- 
+        
+
         Deno.writeTextFileSync(
           `${fileDir}/undownLoad.txt`, config?.undownLoad.text.join('\n'))
-          console.log(`文件已生成:${fileDir}/undownLoad.txt`);
+        console.log(`文件已生成:${fileDir}/undownLoad.txt`);
       }
 
       Deno.writeTextFileSync(
