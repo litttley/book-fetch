@@ -196,16 +196,16 @@ export const runconfig = async () => {
     for (const item of textArr) {
 
       if (item.startsWith('#')) {
-   
-        if(item.startsWith('#book-fetch')){
-          command=item.replace("#","")
+
+        if (item.startsWith('#book-fetch')) {
+          command = item.replace("#", "")
           continue
         }
         // let paramArr = item.split('#').filter(item=>item!='')
-     
-        fileDir = item.replace("#","")
-    
-      
+
+        fileDir = item.replace("#", "")
+
+
         if (fileDir == 'haFiles') {
           fileName = 'haConfig'
         } else if (fileDir == "nlFiles") {
@@ -218,9 +218,9 @@ export const runconfig = async () => {
           fileName = "aksConfig"
         }
 
-      
+
       }
-  
+
 
 
 
@@ -229,17 +229,22 @@ export const runconfig = async () => {
     // console.log(fileDir)
     // console.log(fileName)
     if (fileDir && fileName) {
-  
-      let config = Toml.parse(text);
+      await Deno.mkdir(fileDir, { recursive: true });
 
-    
+      let config = Toml.parse(text);
+      if (config?.undownLoad) {
+ 
+        Deno.writeTextFileSync(
+          `${fileDir}/undownLoad.txt`, config?.undownLoad.text)
+          console.log(`文件已生成:${fileDir}/undownLoad.txt`);
+      }
 
       Deno.writeTextFileSync(
         `${fileDir}/${fileName}.toml`,
-        Toml.stringify({ ...config, ...{ action: { command: command,dir:fileDir,fileName:fileName } } }),)
+        Toml.stringify({ ...config, ...{ action: { command: command, dir: fileDir, fileName: fileName } } }),)
     }
 
-    
+
 
     console.log(`文件已生成:${fileDir}/${fileName}.toml`);
   } catch (error) {
