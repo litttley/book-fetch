@@ -55,25 +55,25 @@ export const generateUrls = async (id, pageStart, pageEnd) => {
         let manifestObj = await response2.json()
         const canvases = manifestObj?.sequences[0].canvases
         // console.log(canvases)
-        let tmpArr=[]
+        let tmpArr = []
         for (const canva of canvases) {
-          let value =   canva.images[0].resource.service['@id']
-         
-          tmpArr.push(`${value}/info.json`)
+            let value = canva.images[0].resource.service['@id']
+
+            tmpArr.push(`${value}/info.json`)
         }
 
-       let urls =  tmpArr.map((item,index)=>{
-            return {url:item,page:index+1}
-        }).filter((item,index) => {
-           const  page=   item.page
+        let urls = tmpArr.map((item, index) => {
+            return { url: item, page: index + 1 }
+        }).filter((item, index) => {
+            const page = item.page
             if (page >= pageStart && page <= pageEnd) {
-              return true;
+                return true;
             } else {
-              return false;
+                return false;
             }
-          }) 
+        })
 
-    
+
 
         return urls;
     } catch (error) {
@@ -81,7 +81,7 @@ export const generateUrls = async (id, pageStart, pageEnd) => {
     }
 };
 
-export const downLoadImages = async (urls,command) => {
+export const downLoadImages = async (urls, command) => {
     let config = null;
 
     // if (await checkFileExists("koFiles/koConfig.toml")) {
@@ -124,7 +124,7 @@ export const downLoadImages = async (urls,command) => {
             }
 
             const cmd = new Deno.Command(path, {
-                args: [ ...command, urls[i].url,urls[i].page],
+                args: [...command, urls[i].url, urls[i].page],
                 stdout: "piped",
                 stderr: "inherit",
                 cwd: "rmFiles",
@@ -139,7 +139,7 @@ export const downLoadImages = async (urls,command) => {
             console.log(error);
             await Deno.writeTextFile(
                 "rmFiles/undownLoad.txt",
-                JSON.stringify({ url: urls[i].url, page: urls[i].page ,command:command}) + "\n",
+                JSON.stringify({ url: urls[i].url, page: urls[i].page, command: command }) + "\n",
                 { append: true },
             );
         }
@@ -306,8 +306,8 @@ export const config = async () => {
 };
 
 export const undownLoad = async () => {
- 
-    const urls =[]
+
+    const urls = []
     try {
         // const text = await Deno.readTextFile("files/undownLoa2d.txt");
 
@@ -344,3 +344,36 @@ export const undownLoad = async () => {
 
     return urls;
 };
+
+
+export const viewDpi = async (id) => {
+    const urls = await generateUrls(id, 1, 1)
+
+    const platform = os.platform();
+
+
+   
+    let path = "./dezoomify-rs.exe";
+
+    if (platform !== "windows") {
+        path = "./dezoomify-rs";
+    }
+
+    if (urls.length > 0) {
+        const cmd = new Deno.Command(path, {
+            args: [ urls[0].url,"--compression"],
+            stdout: "piped",
+            stderr: "inherit",
+            cwd: "rmFiles",
+        });
+        const output = await cmd.output();
+        const logs = new TextDecoder().decode(output.stdout).trim();
+        console.log(logs);
+        if (!output.success) {
+            throw new Error("获取图片分辨率异常")
+        }
+
+    } else {
+        throw new Error("获取图片分辨率异常")
+    }
+}

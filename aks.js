@@ -59,7 +59,7 @@ export const generateUrls = async (url, pageStart, pageEnd) => {
   }
 };
 
-export const downLoadImages = async (urls) => {
+export const downLoadImages = async (urls,command) => {
   let config = null;
 
   // if (await checkFileExists("koFiles/koConfig.toml")) {
@@ -102,7 +102,7 @@ export const downLoadImages = async (urls) => {
       }
 
       const cmd = new Deno.Command(path, {
-        args: ["-l", urls[i].url, urls[i].page],
+        args: [...command, urls[i].url, urls[i].page],
         stdout: "piped",
         stderr: "inherit",
         cwd: "aksFiles",
@@ -117,7 +117,7 @@ export const downLoadImages = async (urls) => {
       console.log(error);
       await Deno.writeTextFile(
         "aksFiles/undownLoad.txt",
-        JSON.stringify({ url: urls[i].url, page: urls[i].page }) + "\n",
+        JSON.stringify({ url: urls[i].url, page: urls[i].page,command:command }) + "\n",
         { append: true },
       );
     }
@@ -321,3 +321,36 @@ export const undownLoad = async () => {
 
   return urls;
 };
+
+
+export const viewDpi = async (url) => {
+  const urls = await generateUrls(url, 1, 1)
+
+  const platform = os.platform();
+
+
+ 
+  let path = "./dezoomify-rs.exe";
+
+  if (platform !== "windows") {
+      path = "./dezoomify-rs";
+  }
+
+  if (urls.length > 0) {
+      const cmd = new Deno.Command(path, {
+          args: [ urls[0].url,"--compression"],
+          stdout: "piped",
+          stderr: "inherit",
+          cwd: "aksFiles",
+      });
+      const output = await cmd.output();
+      const logs = new TextDecoder().decode(output.stdout).trim();
+      console.log(logs);
+      if (!output.success) {
+          throw new Error("获取图片分辨率异常")
+      }
+
+  } else {
+      throw new Error("获取图片分辨率异常")
+  }
+}

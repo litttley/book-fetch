@@ -326,21 +326,49 @@ if (import.meta.main) {
           description: "终止页",
           alias: "e",
           demandOption: true,
-        });
+        })
+          .option("maxHeight", {
+            type: "string",
+            description: "文件高度限制(默认下载最大)",
+            alias: "h",
+            // demandOption: true,
+          })
+          .option("maxWidth", {
+            type: "string",
+            description: "文件宽限制(默认下载最大)",
+            alias: "w",
+            // demandOption: true,
+          })
+          ;
       },
       async (argv) => {
         // console.log(argv)
         console.log("bookFetchStart:akfetch");
         // Aks
-       
+
         const urls = await Aks.generateUrls(
           argv.url,
           parseInt(argv.start),
           parseInt(argv.end),
         );
+
+        let maxHeight = argv?.maxHeight
+        let maxWidth = argv?.maxWidth
+        let command = ["-l"]
+        if (maxHeight) {
+          command = ['-h', parseInt(maxHeight)]
+        }
+        if (maxWidth) {
+          command = ['-w', parseInt(maxWidth)]
+        }
+
+        if (maxHeight && maxWidth) {
+          command = ['-h', parseInt(maxWidth), '-w', parseInt(maxWidth)]
+        }
+
         console.log(urls);
         await Deno.mkdir("askFiles", { recursive: true });
-        await Aks.downLoadImages(urls);
+        await Aks.downLoadImages(urls,command);
 
         console.log("bookFetchEnd:akfetch");
       },
@@ -357,7 +385,8 @@ if (import.meta.main) {
         console.log(urls);
 
         if (urls.length > 0) {
-          await Aks.downLoadImages(urls);
+          let command = urls[0].command
+          await Aks.downLoadImages(urls,command);
         } else {
           console.log("已全完下载!");
         }
@@ -376,39 +405,77 @@ if (import.meta.main) {
       },
     )
 
+    .command(
+      "akfetchdpi",
+      "查看图片分辨率详情",
+      (yargs) => {
+        return yargs.option("url", {
+          type: "string",
+          description: "文件url",
+          alias: "u",
+          demandOption: true,
+        })
+
+
+
+      },
+      async (argv) => {
+        // console.log(argv)
+        console.log("bookFetchStart:akfetchdpi");
+
+
+        try {
+          await Aks.viewDpi(argv.url);
+        } catch (error) {
+          console.log(error?.message)
+        }
+
+
+
+        console.log("bookFetchEnd:akfetchdpi");
+      },
+    )
 
     .command(
       "rmfetch",
       "下载京都大学(https://rmda.kulib.kyoto-u.ac.jp/)",
       (yargs) => {
         return yargs
-        .option("height", {
-          type: "string",
-          description: "文件高度限制(默认下载最大)",
-          alias: "h",
-          // demandOption: true,
-        })
-        .option("id", {
-          type: "string",
-          description: "文件id",
-          alias: "i",
-          demandOption: true,
-        })
-        
-        .option("start", {
-          type: "string",
-          description: "起始页",
-          alias: "s",
-          demandOption: true,
-        }).option("end", {
-          type: "string",
-          description: "终止页",
-          alias: "e",
-          demandOption: true,
-        });
+
+          .option("id", {
+            type: "string",
+            description: "文件id",
+            alias: "i",
+            demandOption: true,
+          })
+
+          .option("start", {
+            type: "string",
+            description: "起始页",
+            alias: "s",
+            demandOption: true,
+          }).option("end", {
+            type: "string",
+            description: "终止页",
+            alias: "e",
+            demandOption: true,
+          })
+          .option("maxHeight", {
+            type: "string",
+            description: "文件高度限制(默认下载最大)",
+            alias: "h",
+            // demandOption: true,
+          })
+          .option("maxWidth", {
+            type: "string",
+            description: "文件宽限制(默认下载最大)",
+            alias: "w",
+            // demandOption: true,
+          })
+          ;
       },
       async (argv) => {
-        // console.log(argv)
+        console.log(argv)
         console.log("bookFetchStart:rmfetch");
         // Aks()
         const urls = await RM.generateUrls(
@@ -416,18 +483,27 @@ if (import.meta.main) {
           parseInt(argv.start),
           parseInt(argv.end),
         );
-       let maxHeight =  argv?.height
-       let command =["-l"]
-       if(maxHeight){
-        command=['-h',parseInt(maxHeight) ]
-       }
+        let maxHeight = argv?.maxHeight
+        let maxWidth = argv?.maxWidth
+        let command = ["-l"]
+        if (maxHeight) {
+          command = ['-h', parseInt(maxHeight)]
+        }
+        if (maxWidth) {
+          command = ['-w', parseInt(maxWidth)]
+        }
 
-       
+        if (maxHeight && maxWidth) {
+          command = ['-h', parseInt(maxWidth), '-w', parseInt(maxWidth)]
+        }
+
+        // console.log(command)
+
         console.log(urls);
- 
-   
+
+
         await Deno.mkdir("rmFiles", { recursive: true });
-        await RM.downLoadImages(urls,command);
+        await RM.downLoadImages(urls, command);
 
         console.log("bookFetchEnd:rmfetch");
       },
@@ -441,18 +517,55 @@ if (import.meta.main) {
       async (argv) => {
         console.log("bookFetchStart:rrmfetch");
         const urls = await RM.undownLoad();
-     
+
 
         if (urls) {
-       let command =    urls[0].command
+          let command = urls[0].command
 
-   
-          await RM.downLoadImages(urls,command);
+
+          await RM.downLoadImages(urls, command);
         } else {
           console.log("已全完下载!");
         }
 
         console.log("bookFetchEnd:rrmfetch");
+      },
+    )
+
+    .command(
+      "rmfetchdpi",
+      "查看图片分辨率详情",
+      (yargs) => {
+        return yargs.option("id", {
+          type: "string",
+          description: "文件id",
+          alias: "i",
+          demandOption: true,
+        })
+
+
+
+      },
+      async (argv) => {
+        // console.log(argv)
+        console.log("bookFetchStart:rmfetchdpi");
+        // Aks()
+        // const urls = await RM.generateUrls(
+        //   argv.id,
+        //   parseInt(argv.start),
+        //   parseInt(argv.end),
+        // );
+
+
+        try {
+          await RM.viewDpi(argv.id);
+        } catch (error) {
+          console.log(error?.message)
+        }
+
+
+
+        console.log("bookFetchEnd:rmfetchdpi");
       },
     )
     .command(
@@ -627,19 +740,34 @@ if (import.meta.main) {
       "kofetch下载示例",
     )
     .example("book-fetch.exe rkofetch  ", "rkofetch重试示例")
+ 
     .example(
       "book-fetch.exe koconfig ",
       "生成配置文件(位于koFiles/koConfig.toml)\n",
     )
     .example(
-      'book-fetch.exe akfetch -u "https://jsg.aks.ac.kr/viewer/viewIMok?dataId=K3-427%7C001#node?depth=2&upPath=001&dataId=001" -s 1 -e 2 ',
-      "akfetch说明:url需要加引号",
+      'book-fetch.exe akfetch -u "https://jsg.aks.ac.kr/viewer/viewIMok?dataId=K3-427%7C001#node?depth=2&upPath=001&dataId=001" -s 1 -e 2  -h 100 -w 100',
+      "akfetch说明:url需要加引号;-h -w参数可选",
     )
     .example("book-fetch.exe rakfetch", "rakfetch示例")
+    .example('book-fetch.exe rmfetchdpi -u "https://jsg.aks.ac.kr/viewer/viewIMok?dataId=K3-427%7C001#node?depth=2&upPath=001&dataId=001" ', "查看图片分辨率")
     .example(
       "book-fetch.exe akconfig ",
       "生成配置文件(位于akFiles/akConfig.toml)\n",
     )
+
+    .example(
+      'book-fetch.exe fmfetch -i rb00007972 -s 1 -e 2 -h 100 -w 100 ',
+      "rmfetch说明:-h -w参数可选",
+    )
+    .example("book-fetch.exe rmfetchdpi -i rb00007972 ", "查看图片分辨率")
+    .example("book-fetch.exe rrmkfetch", "rrmfetch示例")
+    .example(
+      "book-fetch.exe rmconfig ",
+      "生成配置文件(位于rmFiles/rmConfig.toml)\n",
+    )
+
+    
     .strictCommands()
     .scriptName("book-fetch.exe")
     .version("v1.0.0")
