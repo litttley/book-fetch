@@ -7,8 +7,8 @@ import * as Ko from "./kostma.js";
 import * as GitHubAction from "./githubAction.js";
 import * as Aks from "./aks.js";
 import * as RM from "./rmda.js";
-import * as Gshare from './gshare.js'
-import * as Loc from './loc.js'
+import * as Gshare from "./gshare.js";
+import * as Loc from "./loc.js";
 // Learn more at https://deno.land/manual/examples/module_metadata#concepts
 if (import.meta.main) {
   yargs(Deno.args)
@@ -339,8 +339,7 @@ if (import.meta.main) {
             description: "文件宽限制(默认下载最大)",
             alias: "w",
             // demandOption: true,
-          })
-          ;
+          });
       },
       async (argv) => {
         // console.log(argv)
@@ -353,18 +352,18 @@ if (import.meta.main) {
           parseInt(argv.end),
         );
 
-        let maxHeight = argv?.maxHeight
-        let maxWidth = argv?.maxWidth
-        let command = ["-l"]
+        let maxHeight = argv?.maxHeight;
+        let maxWidth = argv?.maxWidth;
+        let command = ["-l"];
         if (maxHeight) {
-          command = ['-h', parseInt(maxHeight)]
+          command = ["-h", parseInt(maxHeight)];
         }
         if (maxWidth) {
-          command = ['-w', parseInt(maxWidth)]
+          command = ["-w", parseInt(maxWidth)];
         }
 
         if (maxHeight && maxWidth) {
-          command = ['-h', parseInt(maxWidth), '-w', parseInt(maxWidth)]
+          command = ["-h", parseInt(maxWidth), "-w", parseInt(maxWidth)];
         }
 
         console.log(urls);
@@ -386,7 +385,7 @@ if (import.meta.main) {
         console.log(urls);
 
         if (urls.length > 0) {
-          let command = urls[0].command
+          let command = urls[0].command;
           await Aks.downLoadImages(urls, command);
         } else {
           console.log("已全完下载!");
@@ -405,7 +404,6 @@ if (import.meta.main) {
         await Aks.config();
       },
     )
-
     .command(
       "akfetchdpi",
       "查看图片分辨率详情",
@@ -415,41 +413,32 @@ if (import.meta.main) {
           description: "文件url",
           alias: "u",
           demandOption: true,
-        })
-
-
-
+        });
       },
       async (argv) => {
         // console.log(argv)
         console.log("bookFetchStart:akfetchdpi");
 
-
         try {
           await Aks.viewDpi(argv.url);
         } catch (error) {
-          console.log(error?.message)
+          console.log(error?.message);
         }
-
-
 
         console.log("bookFetchEnd:akfetchdpi");
       },
     )
-
     .command(
       "rmfetch",
       "下载京都大学(https://rmda.kulib.kyoto-u.ac.jp/)",
       (yargs) => {
         return yargs
-
           .option("id", {
             type: "string",
             description: "文件id",
             alias: "i",
             demandOption: true,
           })
-
           .option("start", {
             type: "string",
             description: "起始页",
@@ -472,11 +461,10 @@ if (import.meta.main) {
             description: "文件宽限制(默认下载最大)",
             alias: "w",
             // demandOption: true,
-          })
-          ;
+          });
       },
       async (argv) => {
-        console.log(argv)
+        console.log(argv);
         console.log("bookFetchStart:rmfetch");
         // Aks()
         const urls = await RM.generateUrls(
@@ -484,24 +472,23 @@ if (import.meta.main) {
           parseInt(argv.start),
           parseInt(argv.end),
         );
-        let maxHeight = argv?.maxHeight
-        let maxWidth = argv?.maxWidth
-        let command = ["-l"]
+        let maxHeight = argv?.maxHeight;
+        let maxWidth = argv?.maxWidth;
+        let command = ["-l"];
         if (maxHeight) {
-          command = ['-h', parseInt(maxHeight)]
+          command = ["-h", parseInt(maxHeight)];
         }
         if (maxWidth) {
-          command = ['-w', parseInt(maxWidth)]
+          command = ["-w", parseInt(maxWidth)];
         }
 
         if (maxHeight && maxWidth) {
-          command = ['-h', parseInt(maxWidth), '-w', parseInt(maxWidth)]
+          command = ["-h", parseInt(maxWidth), "-w", parseInt(maxWidth)];
         }
 
         // console.log(command)
 
         console.log(urls);
-
 
         await Deno.mkdir("rmFiles", { recursive: true });
         await RM.downLoadImages(urls, command);
@@ -519,10 +506,8 @@ if (import.meta.main) {
         console.log("bookFetchStart:rrmfetch");
         const urls = await RM.undownLoad();
 
-
         if (urls) {
-          let command = urls[0].command
-
+          let command = urls[0].command;
 
           await RM.downLoadImages(urls, command);
         } else {
@@ -532,7 +517,6 @@ if (import.meta.main) {
         console.log("bookFetchEnd:rrmfetch");
       },
     )
-
     .command(
       "rmfetchdpi",
       "查看图片分辨率详情",
@@ -542,10 +526,7 @@ if (import.meta.main) {
           description: "文件id",
           alias: "i",
           demandOption: true,
-        })
-
-
-
+        });
       },
       async (argv) => {
         // console.log(argv)
@@ -557,14 +538,11 @@ if (import.meta.main) {
         //   parseInt(argv.end),
         // );
 
-
         try {
           await RM.viewDpi(argv.id);
         } catch (error) {
-          console.log(error?.message)
+          console.log(error?.message);
         }
-
-
 
         console.log("bookFetchEnd:rmfetchdpi");
       },
@@ -579,22 +557,18 @@ if (import.meta.main) {
         await RM.config();
       },
     )
-   
     // https://www.loc.gov/item/c68002496/
     .command(
       "lofetch",
       "美国国会图书馆(https://www.loc.gov/item/c68002496/)",
       (yargs) => {
         return yargs
-
           .option("id", {
             type: "string",
             description: "文件id",
             alias: "i",
             demandOption: true,
           })
-     
-
           .option("start", {
             type: "string",
             description: "起始页",
@@ -617,8 +591,7 @@ if (import.meta.main) {
             description: "文件宽限制(默认下载最大)",
             alias: "w",
             // demandOption: true,
-          })
-          ;
+          });
       },
       async (argv) => {
         // console.log(argv)
@@ -631,39 +604,36 @@ if (import.meta.main) {
           parseInt(argv.end),
         );
 
-
-        let maxHeight = argv?.maxHeight
-        let maxWidth = argv?.maxWidth
-        let command = ["-l"]
+        let maxHeight = argv?.maxHeight;
+        let maxWidth = argv?.maxWidth;
+        let command = ["-l"];
         if (maxHeight) {
-          command = ['-h', parseInt(maxHeight)]
+          command = ["-h", parseInt(maxHeight)];
         }
         if (maxWidth) {
-          command = ['-w', parseInt(maxWidth)]
+          command = ["-w", parseInt(maxWidth)];
         }
 
         if (maxHeight && maxWidth) {
-          command = ['-h', parseInt(maxWidth), '-w', parseInt(maxWidth)]
+          command = ["-h", parseInt(maxWidth), "-w", parseInt(maxWidth)];
         }
 
         // console.log(command)
-      let consoleText =   urls.map(item=>`${item.url} page=${item.page}`).join('\n')
-              console.log(consoleText)
+        let consoleText = urls.map((item) => `${item.url} page=${item.page}`)
+          .join("\n");
+        console.log(consoleText);
         // console.log(urls);
-
 
         await Deno.mkdir("loFiles", { recursive: true });
 
-    //  let sse =    await Loc.getJsonInfo('https://www.loc.gov/resource/lcnclscd.c68002496.1A001/?sp=1')
+        //  let sse =    await Loc.getJsonInfo('https://www.loc.gov/resource/lcnclscd.c68002496.1A001/?sp=1')
 
-    //  console.log(sse)
+        //  console.log(sse)
         await Loc.downLoadImages(urls, command);
 
         console.log("bookFetchEnd:lofetch");
       },
     )
-
-
     .command(
       "rlofetch",
       "如果有失败记录(文件位于loFiles/undownLoad.txt)则重新下载,每次操作完成后需要手动删除历史记录,然后再下",
@@ -676,7 +646,7 @@ if (import.meta.main) {
         console.log(urls);
 
         if (urls.length > 0) {
-          let command = urls[0].command
+          let command = urls[0].command;
           await Loc.downLoadImages(urls, command);
         } else {
           console.log("已全完下载!");
@@ -685,7 +655,6 @@ if (import.meta.main) {
         console.log("bookFetchEnd:lofetch");
       },
     )
-
     .command(
       "loconfig",
       "生成配置文loconfig.json(文件位于rmFiles/loconfig.toml)\n",
@@ -696,7 +665,6 @@ if (import.meta.main) {
         await Loc.config();
       },
     )
-
     .command(
       "lofetchdpi",
       "查看图片分辨率详情",
@@ -706,10 +674,7 @@ if (import.meta.main) {
           description: "文件id",
           alias: "i",
           demandOption: true,
-        })
-
-
-
+        });
       },
       async (argv) => {
         // console.log(argv)
@@ -721,20 +686,15 @@ if (import.meta.main) {
         //   parseInt(argv.end),
         // );
 
-
         try {
           await Loc.viewDpi(argv.id);
         } catch (error) {
-          console.log(error?.message)
+          console.log(error?.message);
         }
-
-
 
         console.log("bookFetchEnd:rmfetchdpi");
       },
     )
-
-
     .command(
       "actionfetch",
       "运行后端服务",
@@ -881,8 +841,6 @@ if (import.meta.main) {
         demandOption: true,
       });
     }, async (argv) => {
-
-
       // console.log(argv)
 
       try {
@@ -890,11 +848,8 @@ if (import.meta.main) {
 
         await Gshare.downLoadImages(argv.url);
       } catch (error) {
-        console.log(error?.message)
+        console.log(error?.message);
       }
-
-
-
     })
     .example(
       "book-fetch.exe hafetch  -i hvd.32044067943118  -s 1 -e 305 ",
@@ -919,7 +874,6 @@ if (import.meta.main) {
       "kofetch下载示例",
     )
     .example("book-fetch.exe rkofetch  ", "rkofetch重试示例")
-
     .example(
       "book-fetch.exe koconfig ",
       "生成配置文件(位于koFiles/koConfig.toml)\n",
@@ -929,14 +883,16 @@ if (import.meta.main) {
       "akfetch说明:url需要加引号;-h -w参数可选",
     )
     .example("book-fetch.exe rakfetch", "rakfetch示例")
-    .example('book-fetch.exe rmfetchdpi -u "https://jsg.aks.ac.kr/viewer/viewIMok?dataId=K3-427%7C001#node?depth=2&upPath=001&dataId=001" ', "查看图片分辨率")
+    .example(
+      'book-fetch.exe rmfetchdpi -u "https://jsg.aks.ac.kr/viewer/viewIMok?dataId=K3-427%7C001#node?depth=2&upPath=001&dataId=001" ',
+      "查看图片分辨率",
+    )
     .example(
       "book-fetch.exe akconfig ",
       "生成配置文件(位于akFiles/akConfig.toml)\n",
     )
-
     .example(
-      'book-fetch.exe fmfetch -i rb00007972 -s 1 -e 2 -h 100 -w 100 ',
+      "book-fetch.exe fmfetch -i rb00007972 -s 1 -e 2 -h 100 -w 100 ",
       "rmfetch说明:-h -w参数可选",
     )
     .example("book-fetch.exe rmfetchdpi -i rb00007972 ", "查看图片分辨率")
@@ -945,15 +901,10 @@ if (import.meta.main) {
       "book-fetch.exe rmconfig ",
       "生成配置文件(位于rmFiles/rmConfig.toml)\n",
     )
-
-
     .example(
       'book-fetch.exe gshare  -u "https://drive.google.com/file/d/1oIMIKhztjQXr-t6z19BAbJw5yFekLoJ4/view?usp=sharing"',
       "gshare",
     )
-
-
-
     .strictCommands()
     .scriptName("book-fetch.exe")
     .version("v1.0.0")

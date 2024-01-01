@@ -13,11 +13,9 @@ export const addTask = async ({ fileName, command, config }) => {
     body = `#koFiles\n#${command.replace(".exe", "")}\n#xxxx`;
   } else if (command.includes("akfetch")) {
     body = `#aksFiles\n#${command.replace(".exe", "")}\n#xxxx`;
-  }
-  else if (command.includes("rmfetch")) {
+  } else if (command.includes("rmfetch")) {
     body = `#rmFiles\n#${command.replace(".exe", "")}\n#xxxx`;
-  }
-  else if(command.includes("gshare")){
+  } else if (command.includes("gshare")) {
     body = `#gshareFiles\n#${command.replace(".exe", "")}\n#xxxx`;
   }
 
@@ -192,51 +190,49 @@ export const config = async () => {
 
 export const runconfig = async () => {
   try {
-    let text = Deno.readTextFileSync("./actionRunConfig.toml")
+    let text = Deno.readTextFileSync("./actionRunConfig.toml");
 
-    let textArr = text.split("\n")
-    console.log(textArr)
-    let command = textArr[1].trim().replace("#", "")
-    let fileDir = textArr[0].trim().replace("#", "")
-    let fileName = null
+    let textArr = text.split("\n");
+    console.log(textArr);
+    let command = textArr[1].trim().replace("#", "");
+    let fileDir = textArr[0].trim().replace("#", "");
+    let fileName = null;
 
-
-
-    if (fileDir == 'haFiles') {
-      fileName = 'haConfig'
+    if (fileDir == "haFiles") {
+      fileName = "haConfig";
     } else if (fileDir == "nlFiles") {
-      fileName = "nlConfig"
+      fileName = "nlConfig";
     } else if (fileDir == "koFiles") {
-      fileName = "koConfig"
+      fileName = "koConfig";
     } else if (fileDir == "osFiles") {
-      fileName = "osConfig"
+      fileName = "osConfig";
     } else if (fileDir == "aksFiles") {
-      fileName = "aksConfig"
+      fileName = "aksConfig";
     }
- 
+
     if (fileDir && fileName) {
       await Deno.mkdir(fileDir, { recursive: true });
 
       let config = Toml.parse(text);
       if (config?.undownLoad) {
-
-        
-
         Deno.writeTextFileSync(
-          `${fileDir}/undownLoad.txt`, config?.undownLoad.text.join('\n'))
+          `${fileDir}/undownLoad.txt`,
+          config?.undownLoad.text.join("\n"),
+        );
         console.log(`文件已生成:${fileDir}/undownLoad.txt`);
       }
 
       Deno.writeTextFileSync(
         `${fileDir}/${fileName}.toml`,
-        Toml.stringify({ ...config, ...{ action: { command: command, dir: fileDir, fileName: fileName } } }),)
+        Toml.stringify({
+          ...config,
+          ...{ action: { command: command, dir: fileDir, fileName: fileName } },
+        }),
+      );
     }
-
-
 
     console.log(`文件已生成:${fileDir}/${fileName}.toml`);
   } catch (error) {
     console.log(error);
   }
 };
-
