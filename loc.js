@@ -52,7 +52,7 @@ const generateUrlsStep2 = async (infoUrls) => {
       const templateHref = href.split("?")[0];
       for (var i = 0; i < total; i++) {
         // console.log(i + 1)
-        let url = `${templateHref}?sp=${i + 1}`;
+        let url = `${templateHref}?sp=${i + 1}&st=image`;
         console.log(`${url} page=${page}`);
         urls.push({ url: url, vol: vol, page: page });
         page++;

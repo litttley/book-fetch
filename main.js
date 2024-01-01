@@ -560,7 +560,7 @@ if (import.meta.main) {
     // https://www.loc.gov/item/c68002496/
     .command(
       "lofetch",
-      "美国国会图书馆(https://www.loc.gov/item/c68002496/)",
+      "美国国会图书馆(https://www.loc.gov/)",
       (yargs) => {
         return yargs
           .option("id", {
