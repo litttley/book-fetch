@@ -14,6 +14,12 @@ export const addTask = async ({ fileName, command, config }) => {
   } else if (command.includes("akfetch")) {
     body = `aksFiles#${command.replace(".exe", "")}`;
   }
+  else if (command.includes("rmfetch")) {
+    body = `rmFiles#${command.replace(".exe", "")}`;
+  }
+  else if(command.includes("gshare")){
+    body = `gshareFiles#${command.replace(".exe", "")}`;
+  }
 
   if (body == "") {
     throw "指令输入错误";
