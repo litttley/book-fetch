@@ -4,21 +4,21 @@ import * as GithubRestApi from "./githubRestApi.js";
 export const addTask = async ({ fileName, command, config }) => {
   let body = "";
   if (command.includes("osfetch")) {
-    body = `osFiles#${command.replace(".exe", "")}`;
+    body = `#osFiles\n#${command.replace(".exe", "")}\n#xxxx`;
   } else if (command.includes("hafetch")) {
-    body = `haFiles#${command.replace(".exe", "")}`;
+    body = `#haFiles\n#${command.replace(".exe", "")}\n#xxxx`;
   } else if (command.includes("nlfetch")) {
-    body = `nlFiles#${command.replace(".exe", "")}`;
+    body = `#nlFiles\n#${command.replace(".exe", "")}\n#xxxx`;
   } else if (command.includes("kofetch")) {
-    body = `koFiles#${command.replace(".exe", "")}`;
+    body = `#koFiles\n#${command.replace(".exe", "")}\n#xxxx`;
   } else if (command.includes("akfetch")) {
-    body = `aksFiles#${command.replace(".exe", "")}`;
+    body = `#aksFiles\n#${command.replace(".exe", "")}\n#xxxx`;
   }
   else if (command.includes("rmfetch")) {
-    body = `rmFiles#${command.replace(".exe", "")}`;
+    body = `#rmFiles\n#${command.replace(".exe", "")}\n#xxxx`;
   }
   else if(command.includes("gshare")){
-    body = `gshareFiles#${command.replace(".exe", "")}`;
+    body = `#gshareFiles\n#${command.replace(".exe", "")}\n#xxxx`;
   }
 
   if (body == "") {
