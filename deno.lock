@@ -2,10 +2,15 @@
   "version": "3",
   "packages": {
     "specifiers": {
+      "npm:@tinyhttp/content-disposition": "npm:@tinyhttp/content-disposition@2.2.0",
       "npm:moment": "npm:moment@2.29.4",
       "npm:yargonaut": "npm:yargonaut@1.1.4"
     },
     "npm": {
+      "@tinyhttp/content-disposition@2.2.0": {
+        "integrity": "sha512-w1dJaSAtcCinOlT/YQg35RnFCOBbCHBGDVhH4yLoiJVtecRAJ2cYMf5HP+UhfbXURa38GC8fkRXO0vODDTjmeg==",
+        "dependencies": {}
+      },
       "ansi-regex@2.1.1": {
         "integrity": "sha512-TIGnTpdo+E3+pCyAluZvtED5p5wCqLdezCyhPZzKPcxvFplEt4i+W7OONCKgeZFT3+y5NZZfOOS/Bdcanm1MYA==",
         "dependencies": {}

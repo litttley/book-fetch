@@ -7,7 +7,7 @@ import * as Ko from "./kostma.js";
 import * as GitHubAction from "./githubAction.js";
 import * as Aks from "./aks.js";
 import * as RM from "./rmda.js";
-
+import * as Gshare from './gshare.js'
 // Learn more at https://deno.land/manual/examples/module_metadata#concepts
 if (import.meta.main) {
   yargs(Deno.args)
@@ -368,7 +368,7 @@ if (import.meta.main) {
 
         console.log(urls);
         await Deno.mkdir("askFiles", { recursive: true });
-        await Aks.downLoadImages(urls,command);
+        await Aks.downLoadImages(urls, command);
 
         console.log("bookFetchEnd:akfetch");
       },
@@ -386,7 +386,7 @@ if (import.meta.main) {
 
         if (urls.length > 0) {
           let command = urls[0].command
-          await Aks.downLoadImages(urls,command);
+          await Aks.downLoadImages(urls, command);
         } else {
           console.log("已全完下载!");
         }
@@ -717,6 +717,29 @@ if (import.meta.main) {
         }
       },
     )
+    .command("gshare", "下载google云盘分享文件", (yargs) => {
+      return yargs.option("url", {
+        type: "分享url",
+        description: "分享id",
+        alias: "u",
+        demandOption: true,
+      });
+    }, async (argv) => {
+
+
+      // console.log(argv)
+
+      try {
+        await Deno.mkdir("gshareFiles", { recursive: true });
+
+        await Gshare.downLoadImages(argv.url);
+      } catch (error) {
+        console.log(error?.message)
+      }
+
+
+
+    })
     .example(
       "book-fetch.exe hafetch  -i hvd.32044067943118  -s 1 -e 305 ",
       "下载示例说明",
@@ -740,7 +763,7 @@ if (import.meta.main) {
       "kofetch下载示例",
     )
     .example("book-fetch.exe rkofetch  ", "rkofetch重试示例")
- 
+
     .example(
       "book-fetch.exe koconfig ",
       "生成配置文件(位于koFiles/koConfig.toml)\n",
@@ -767,7 +790,14 @@ if (import.meta.main) {
       "生成配置文件(位于rmFiles/rmConfig.toml)\n",
     )
 
-    
+
+    .example(
+      'book-fetch.exe gshare  -u "https://drive.google.com/file/d/1oIMIKhztjQXr-t6z19BAbJw5yFekLoJ4/view?usp=sharing"',
+      "gshare",
+    )
+
+
+
     .strictCommands()
     .scriptName("book-fetch.exe")
     .version("v1.0.0")
