@@ -68,6 +68,8 @@ const generateUrlsStep2 = async (infoUrls) => {
 };
 
 export const generateUrls = async (id, pageStart, pageEnd) => {
+
+    console.log(id)
   try {
     const response = await fetch(`https://www.loc.gov/item/${id}/`, {
       method: "GET",
@@ -107,6 +109,7 @@ export const generateUrls = async (id, pageStart, pageEnd) => {
       i++;
     }
 
+    console.log(volArr)
     const tmpArr = await generateUrlsStep2(volArr);
     let urls = tmpArr.filter((item, index) => {
       const page = item.page;

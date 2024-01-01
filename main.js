@@ -595,6 +595,7 @@ if (import.meta.main) {
       },
       async (argv) => {
         // console.log(argv)
+        console.log('11')
         console.log("bookFetchStart:lofetch");
         // Aks()
         const urls = await Loc.generateUrls(
@@ -603,6 +604,8 @@ if (import.meta.main) {
           parseInt(argv.start),
           parseInt(argv.end),
         );
+
+        console.log(urls)
 
         let maxHeight = argv?.maxHeight;
         let maxWidth = argv?.maxWidth;
