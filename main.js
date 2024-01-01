@@ -8,6 +8,7 @@ import * as GitHubAction from "./githubAction.js";
 import * as Aks from "./aks.js";
 import * as RM from "./rmda.js";
 import * as Gshare from './gshare.js'
+import * as Loc from './loc.js'
 // Learn more at https://deno.land/manual/examples/module_metadata#concepts
 if (import.meta.main) {
   yargs(Deno.args)
@@ -578,6 +579,161 @@ if (import.meta.main) {
         await RM.config();
       },
     )
+   
+    // https://www.loc.gov/item/c68002496/
+    .command(
+      "lofetch",
+      "美国国会图书馆(https://www.loc.gov/item/c68002496/)",
+      (yargs) => {
+        return yargs
+
+          .option("id", {
+            type: "string",
+            description: "文件id",
+            alias: "i",
+            demandOption: true,
+          })
+     
+
+          .option("start", {
+            type: "string",
+            description: "起始页",
+            alias: "s",
+            demandOption: true,
+          }).option("end", {
+            type: "string",
+            description: "终止页",
+            alias: "e",
+            demandOption: true,
+          })
+          .option("maxHeight", {
+            type: "string",
+            description: "文件高度限制(默认下载最大)",
+            alias: "h",
+            // demandOption: true,
+          })
+          .option("maxWidth", {
+            type: "string",
+            description: "文件宽限制(默认下载最大)",
+            alias: "w",
+            // demandOption: true,
+          })
+          ;
+      },
+      async (argv) => {
+        // console.log(argv)
+        console.log("bookFetchStart:lofetch");
+        // Aks()
+        const urls = await Loc.generateUrls(
+          argv.id,
+          // parseInt(argv.vol),
+          parseInt(argv.start),
+          parseInt(argv.end),
+        );
+
+
+        let maxHeight = argv?.maxHeight
+        let maxWidth = argv?.maxWidth
+        let command = ["-l"]
+        if (maxHeight) {
+          command = ['-h', parseInt(maxHeight)]
+        }
+        if (maxWidth) {
+          command = ['-w', parseInt(maxWidth)]
+        }
+
+        if (maxHeight && maxWidth) {
+          command = ['-h', parseInt(maxWidth), '-w', parseInt(maxWidth)]
+        }
+
+        // console.log(command)
+      let consoleText =   urls.map(item=>`${item.url} page=${item.page}`).join('\n')
+              console.log(consoleText)
+        // console.log(urls);
+
+
+        await Deno.mkdir("loFiles", { recursive: true });
+
+    //  let sse =    await Loc.getJsonInfo('https://www.loc.gov/resource/lcnclscd.c68002496.1A001/?sp=1')
+
+    //  console.log(sse)
+        await Loc.downLoadImages(urls, command);
+
+        console.log("bookFetchEnd:lofetch");
+      },
+    )
+
+
+    .command(
+      "rlofetch",
+      "如果有失败记录(文件位于loFiles/undownLoad.txt)则重新下载,每次操作完成后需要手动删除历史记录,然后再下",
+      (yargs) => {
+        return yargs;
+      },
+      async (argv) => {
+        console.log("bookFetchStart:lofetch");
+        const urls = await Loc.undownLoad();
+        console.log(urls);
+
+        if (urls.length > 0) {
+          let command = urls[0].command
+          await Loc.downLoadImages(urls, command);
+        } else {
+          console.log("已全完下载!");
+        }
+
+        console.log("bookFetchEnd:lofetch");
+      },
+    )
+
+    .command(
+      "loconfig",
+      "生成配置文loconfig.json(文件位于rmFiles/loconfig.toml)\n",
+      (yargs) => {
+        return yargs;
+      },
+      async (argv) => {
+        await Loc.config();
+      },
+    )
+
+    .command(
+      "lofetchdpi",
+      "查看图片分辨率详情",
+      (yargs) => {
+        return yargs.option("id", {
+          type: "string",
+          description: "文件id",
+          alias: "i",
+          demandOption: true,
+        })
+
+
+
+      },
+      async (argv) => {
+        // console.log(argv)
+        console.log("bookFetchStart:lofetchdpi");
+        // Aks()
+        // const urls = await RM.generateUrls(
+        //   argv.id,
+        //   parseInt(argv.start),
+        //   parseInt(argv.end),
+        // );
+
+
+        try {
+          await Loc.viewDpi(argv.id);
+        } catch (error) {
+          console.log(error?.message)
+        }
+
+
+
+        console.log("bookFetchEnd:rmfetchdpi");
+      },
+    )
+
 
     .command(
       "actionfetch",
@@ -606,7 +762,7 @@ if (import.meta.main) {
       async (argv) => {
         // console.info('2333')
         console.log("bookFetchActionStart:github");
-        console.info(argv);
+        // console.info(argv);
         let fileName = "files";
         if (argv?.filename) {
           fileName = argv?.filename;
