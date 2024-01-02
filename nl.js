@@ -1,6 +1,7 @@
 import { sleepRandomAmountOfSeconds } from "https://deno.land/x/sleep/mod.ts";
 import * as Toml from "https://deno.land/std@0.208.0/toml/mod.ts";
 import { readline } from "https://deno.land/x/readline@v1.1.0/mod.ts";
+import moment from "npm:moment";
 const downLoad = async (url, page, config) => {
   let startTime = config?.downLoad?.rate?.startTime;
   let endTime = config?.downLoad?.rate?.endTime;
