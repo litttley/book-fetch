@@ -1,4 +1,8 @@
 import * as ContentDisposition from "npm:@tinyhttp/content-disposition";
+import {
+  DOMParser,
+  Element,
+} from "https://deno.land/x/deno_dom/deno-dom-wasm.ts";
 function typeDetect(_link) {
   var type = "file";
   var edit = true;
@@ -153,6 +157,54 @@ const getRealDownUrl = async (link) => {
   //   }
 };
 
+
+const downLoadStep2=async(html,url)=>{
+
+  const doc = new DOMParser().parseFromString(
+    `
+           ${html}
+          `,
+    "text/html",
+  );
+  const formEle = doc.querySelector("#download-form");
+ let formUrl =  formEle.getAttribute('action')
+
+  const response = await fetch(formUrl, {
+    method: "POST",
+    // responseType: 'stream'
+    headers: {
+      "Accept":
+        "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+      "Accept-Encoding": "gzip, deflate, br",
+      "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+
+      "Host": "viewer.nl.go.kr",
+      "User-Agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36 Edg/118.0.2088.76",
+    },
+  });
+  let resHeaders = response.headers;
+  let fileName = resHeaders.get("content-disposition");
+  let contentDisposition = ContentDisposition.parse(fileName);
+  let finalFileName = "";
+  console.log(contentDisposition?.parameters?.filename);
+  if (contentDisposition?.parameters.filename) {
+    finalFileName = contentDisposition?.parameters.filename;
+  } else {
+    finalFileName = `未知.${mime}`;
+  }
+
+  let read = response.body;
+
+  const file = await Deno.open(`${"gshareFiles"}/${finalFileName}`, {
+    create: true,
+    write: true,
+  });
+
+  await read?.pipeTo(file.writable);
+
+}
+
 export const downLoadImages = async (link) => {
   let url = await getRealDownUrl(link);
   console.log(url);
@@ -173,9 +225,17 @@ export const downLoadImages = async (link) => {
 
   let resHeaders = response.headers;
   let mime = resHeaders.get("content-type");
-  //   console.log(mime)
+ 
+    console.log(mime)
   if (mime == "application/pdf") {
     mime = "pdf";
+  }else if(mime == "text/html; charset=utf-8"){
+    const html = await response.text()
+    console.log(html)
+
+   await downLoadStep2(html,url)
+
+   return true
   }
   let fileName = resHeaders.get("content-disposition");
   let contentDisposition = ContentDisposition.parse(fileName);
