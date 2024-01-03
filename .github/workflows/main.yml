@@ -25,13 +25,13 @@ jobs:
           sudo apt install p7zip-full
           deno compile  -A  --unstable --target x86_64-unknown-linux-gnu --output build/book-fetch_x86_64_unknown_linux_gnu  main.js
 
-          strip build/book-fetch_x86_64_unknown_linux_gnu
+          # strip build/book-fetch_x86_64_unknown_linux_gnu
 
           #gitaction使用
           cp build/book-fetch_x86_64_unknown_linux_gnu book-fetch-action/book-fetch_linux_gnu
           # deno compile  -A  --unstable --target x86_64-unknown-linux-gnu --output book-fetch-action/book-fetch_linux_gnu  main.js
           deno compile  -A  --unstable --target x86_64-unknown-linux-gnu --output book-fetch-action/uploadFiles_linux_gnu  uploadFiles.js
-          strip book-fetch-action/uploadFiles_linux_gnu
+          # strip book-fetch-action/uploadFiles_linux_gnu
       
         
           deno compile  -A  --unstable --target aarch64-apple-darwin --output  build/book-fetch_aarch64_apple_darwin   main.js
