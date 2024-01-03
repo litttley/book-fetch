@@ -10,6 +10,7 @@ import * as RM from "./rmda.js";
 import * as Gshare from "./gshare.js";
 import * as Loc from "./loc.js";
 import * as Dig from "./digital.js";
+import * as Har from "./harvard.js";
 // Learn more at https://deno.land/manual/examples/module_metadata#concepts
 if (import.meta.main) {
   yargs(Deno.args)
@@ -699,6 +700,8 @@ if (import.meta.main) {
         console.log("bookFetchEnd:rmfetchdpi");
       },
     )
+
+     //https://digital.staatsbibliothek-berlin.de/werkansicht?PPN=PPN3303598916&PHYSID=PHYS_0008&DMDID=DMDLOG_0001
     .command(
       "difetch",
       "德国柏林国立图书馆(https://digital.staatsbibliothek-berlin.de/)",
@@ -778,6 +781,7 @@ if (import.meta.main) {
         console.log("bookFetchEnd:difetch");
       },
     )
+       
     .command(
       "rdifetch",
       "如果有失败记录(文件位于diFiles/undownLoad.txt)则重新下载,每次操作完成后需要手动删除历史记录,然后再下",
@@ -840,7 +844,155 @@ if (import.meta.main) {
         await Dig.config();
       },
     )
-    //https://digital.staatsbibliothek-berlin.de/werkansicht?PPN=PPN3303598916&PHYSID=PHYS_0008&DMDID=DMDLOG_0001
+
+
+    //https://curiosity.lib.harvard.edu/chinese-rare-books
+    //https://curiosity.lib.harvard.edu/chinese-rare-books/catalog/49-990032703120203941
+
+    .command(
+      "harfetch",
+      "哈佛大学图书馆(https://curiosity.lib.harvard.edu/chinese-rare-books/catalog?search_field=all_fields)",
+      (yargs) => {
+        return yargs
+          .option("url", {
+            type: "string",
+            description: "文件url",
+            alias: "u",
+            demandOption: true,
+          })
+          .option("start", {
+            type: "string",
+            description: "起始页",
+            alias: "s",
+            demandOption: true,
+          }).option("end", {
+            type: "string",
+            description: "终止页",
+            alias: "e",
+            demandOption: true,
+          })
+          .option("maxHeight", {
+            type: "string",
+            description: "文件高度限制(默认下载最大)",
+            alias: "h",
+            // demandOption: true,
+          })
+          .option("maxWidth", {
+            type: "string",
+            description: "文件宽限制(默认下载最大)",
+            alias: "w",
+            // demandOption: true,
+          });
+      },
+      async (argv) => {
+        // console.log(argv)
+
+        console.log("bookFetchStart:harfetch");
+        // Aks()
+        const urls = await Har.generateUrls(
+          argv.url,
+          // parseInt(argv.vol),
+          parseInt(argv.start),
+          parseInt(argv.end),
+        );
+
+        // console.log(urls)
+
+        let maxHeight = argv?.maxHeight;
+        let maxWidth = argv?.maxWidth;
+        let command = ["-l"];
+        if (maxHeight) {
+          command = ["-h", parseInt(maxHeight)];
+        }
+        if (maxWidth) {
+          command = ["-w", parseInt(maxWidth)];
+        }
+
+        if (maxHeight && maxWidth) {
+          command = ["-h", parseInt(maxWidth), "-w", parseInt(maxWidth)];
+        }
+
+        // const NewCommand=[...command,'-H','Referer:https://digital.staatsbibliothek-berlin.de/','-H','User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0']
+
+        // // console.log(command)
+        let consoleText = urls.map((item) => `${item.url} page=${item.page}`)
+          .join("\n");
+        console.log(consoleText);
+        // // // console.log(urls);
+
+        await Deno.mkdir("harFiles", { recursive: true });
+
+        // console.log(command);
+        await Har.downLoadImages(urls, command);
+
+        console.log("bookFetchEnd:difetch");
+      },
+    )
+
+    .command(
+      "rharfetch",
+      "如果有失败记录(文件位于harFiles/undownLoad.txt)则重新下载,每次操作完成后需要手动删除历史记录,然后再下",
+      (yargs) => {
+        return yargs;
+      },
+      async (argv) => {
+        console.log("bookFetchStart:rharfetch");
+        const urls = await Har.undownLoad();
+        console.log(urls);
+
+        if (urls.length > 0) {
+          let command = urls[0].command;
+          // const NewCommand=[...command,'-H','Referer:https://digital.staatsbibliothek-berlin.de/','-H','User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0']
+          await Har.downLoadImages(urls, command);
+        } else {
+          console.log("已全完下载!");
+        }
+
+        console.log("bookFetchEnd:rdifetch");
+      },
+    )
+    .command(
+      "harfetchdpi",
+      "查看图片分辨率详情",
+      (yargs) => {
+        return yargs.option("url", {
+          type: "string",
+          description: "文件id",
+          alias: "u",
+          demandOption: true,
+        });
+      },
+      async (argv) => {
+        // console.log(argv)
+        console.log("bookFetchStart:difetchdpi");
+        // Aks()
+        // const urls = await RM.generateUrls(
+        //   argv.id,
+        //   parseInt(argv.start),
+        //   parseInt(argv.end),
+        // );
+
+        try {
+          await Har.viewDpi(argv.url);
+        } catch (error) {
+          console.log(error?.message);
+        }
+
+        console.log("bookFetchEnd:harfetchdpi");
+      },
+    )
+    .command(
+      "harconfig",
+      "生成配置文harconfig.json(文件位于harFiles/harconfig.toml)\n",
+      (yargs) => {
+        return yargs;
+      },
+      async (argv) => {
+        await Har.config();
+      },
+    )
+       
+
     .command(
       "actionfetch",
       "运行后端服务",
