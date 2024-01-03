@@ -700,8 +700,7 @@ if (import.meta.main) {
         console.log("bookFetchEnd:rmfetchdpi");
       },
     )
-
-     //https://digital.staatsbibliothek-berlin.de/werkansicht?PPN=PPN3303598916&PHYSID=PHYS_0008&DMDID=DMDLOG_0001
+    //https://digital.staatsbibliothek-berlin.de/werkansicht?PPN=PPN3303598916&PHYSID=PHYS_0008&DMDID=DMDLOG_0001
     .command(
       "difetch",
       "德国柏林国立图书馆(https://digital.staatsbibliothek-berlin.de/)",
@@ -781,7 +780,6 @@ if (import.meta.main) {
         console.log("bookFetchEnd:difetch");
       },
     )
-       
     .command(
       "rdifetch",
       "如果有失败记录(文件位于diFiles/undownLoad.txt)则重新下载,每次操作完成后需要手动删除历史记录,然后再下",
@@ -844,8 +842,6 @@ if (import.meta.main) {
         await Dig.config();
       },
     )
-
-
     //https://curiosity.lib.harvard.edu/chinese-rare-books
     //https://curiosity.lib.harvard.edu/chinese-rare-books/catalog/49-990032703120203941
 
@@ -928,7 +924,6 @@ if (import.meta.main) {
         console.log("bookFetchEnd:difetch");
       },
     )
-
     .command(
       "rharfetch",
       "如果有失败记录(文件位于harFiles/undownLoad.txt)则重新下载,每次操作完成后需要手动删除历史记录,然后再下",
@@ -991,8 +986,6 @@ if (import.meta.main) {
         await Har.config();
       },
     )
-       
-
     .command(
       "actionfetch",
       "运行后端服务",
@@ -1149,6 +1142,7 @@ if (import.meta.main) {
         console.log(error?.message);
       }
     })
+    .example("hafetch使用说明:")
     .example(
       "book-fetch.exe hafetch  -i hvd.32044067943118  -s 1 -e 305 ",
       "下载示例说明",
@@ -1158,6 +1152,7 @@ if (import.meta.main) {
       "book-fetch.exe haconfig ",
       "生成配置文件(位于haFiles/rhaConfig.toml)\n",
     )
+    .example("韩国国立图书馆使用说明:")
     .example(
       "book-fetch.exe nlfetch -c CNTS-00109637789 -v 1 -s 1 -e 3  ",
       "nlfetch下载示例",
@@ -1167,6 +1162,7 @@ if (import.meta.main) {
       "book-fetch.exe nlconfig ",
       "生成配置文件(位于nlFiles/nlConfig.toml)\n",
     )
+    .example("高丽大学图书馆使用说明:")
     .example(
       "book-fetch.exe  kofetch -u RIKS+CRMA+KSM-WZ.1893.0000-20090716.AS_SA_244 -s 1 -e 57   ",
       "kofetch下载示例",
@@ -1176,6 +1172,21 @@ if (import.meta.main) {
       "book-fetch.exe koconfig ",
       "生成配置文件(位于koFiles/koConfig.toml)\n",
     )
+    .example("巴伐利亞州立東亞圖書館使用说明:")
+    .example(
+      "book-fetch.exe osfetch -i bsb11122602 -s 1 -e 2   ",
+      "osfetch说明",
+    )
+    .example("book-fetch.exe rosfetch", "rosfetch示例")
+    // .example(
+    //   'book-fetch.exe rmfetchdpi -u "https://jsg.aks.ac.kr/viewer/viewIMok?dataId=K3-427%7C001#node?depth=2&upPath=001&dataId=001" ',
+    //   "查看图片分辨率",
+    // )
+    .example(
+      "book-fetch.exe osconfig ",
+      "生成配置文件(位于osFiles/osConfig.toml)\n",
+    )
+    .example("韩国收藏阁使用说明:")
     .example(
       'book-fetch.exe akfetch -u "https://jsg.aks.ac.kr/viewer/viewIMok?dataId=K3-427%7C001#node?depth=2&upPath=001&dataId=001" -s 1 -e 2  -h 100 -w 100',
       "akfetch说明:url需要加引号;-h -w参数可选",
@@ -1189,8 +1200,9 @@ if (import.meta.main) {
       "book-fetch.exe akconfig ",
       "生成配置文件(位于akFiles/akConfig.toml)\n",
     )
+    .example("京都大学图书馆使用说明:")
     .example(
-      "book-fetch.exe fmfetch -i rb00007972 -s 1 -e 2 -h 100 -w 100 ",
+      "book-fetch.exe rmfetch -i rb00007972 -s 1 -e 2 -h 100 -w 100 ",
       "rmfetch说明:-h -w参数可选",
     )
     .example("book-fetch.exe rmfetchdpi -i rb00007972 ", "查看图片分辨率")
@@ -1199,9 +1211,35 @@ if (import.meta.main) {
       "book-fetch.exe rmconfig ",
       "生成配置文件(位于rmFiles/rmConfig.toml)\n",
     )
+    .example("谷歌云盘使用说明:")
     .example(
-      'book-fetch.exe gshare  -u "https://drive.google.com/file/d/1oIMIKhztjQXr-t6z19BAbJw5yFekLoJ4/view?usp=sharing"',
-      "gshare",
+      'book-fetch.exe gshare  -u "https://drive.google.com/file/d/1oIMIKhztjQXr-t6z19BAbJw5yFekLoJ4/view?usp=sharing"\n',
+      "gshare\n",
+    )
+    .example("德国柏林国立图书馆使用说明:")
+    .example(
+      "book-fetch.exe difetch -p PPN3303598916 -s 1 -e 2 -h 100 -w 100 ",
+      "difetch说明:-h -w参数可选",
+    )
+    .example("book-fetch.exe difetchdpi -p PPN3303598916 ", "查看图片分辨率")
+    .example("book-fetch.exe rdimkfetch", "rdifetch示例")
+    .example(
+      "book-fetch.exe diconfig ",
+      "生成配置文件(位于diFiles/diConfig.toml)\n",
+    )
+    .example("哈佛大学图书馆使用说明:")
+    .example(
+      "book-fetch.exe harfetch -u https://curiosity.lib.harvard.edu/chinese-rare-books/catalog/49-990032703120203941 -s 1 -e 2 -h 100 -w 100 ",
+      "harfetch说明:-h -w参数可选",
+    )
+    .example(
+      "book-fetch.exe harfetchdpi -u https://curiosity.lib.harvard.edu/chinese-rare-books/catalog/49-990032703120203941 ",
+      "查看图片分辨率",
+    )
+    .example("book-fetch.exe rharfetch", "重试")
+    .example(
+      "book-fetch.exe harconfig ",
+      "生成配置文件(位于harFiles/harConfig.toml)\n",
     )
     .strictCommands()
     .scriptName("book-fetch.exe")

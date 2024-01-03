@@ -108,7 +108,7 @@ export const downLoaddezoomify = async () => {
 };
 
 export const getDzi = async (url) => {
-   const  client = Deno.createHttpClient({ http2: true });
+  const client = Deno.createHttpClient({ http2: true });
   const response = await fetch(
     url,
     {
@@ -130,7 +130,7 @@ export const getDzi = async (url) => {
   );
 
   const dziUrl = await response.text();
-  client.close()
+  client.close();
   return dziUrl;
 };
 export const downLoadImages = async (urls, command) => {
