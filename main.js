@@ -596,7 +596,7 @@ if (import.meta.main) {
       },
       async (argv) => {
         // console.log(argv)
-        console.log('11')
+        console.log("11");
         console.log("bookFetchStart:lofetch");
         // Aks()
         const urls = await Loc.generateUrls(
@@ -606,7 +606,7 @@ if (import.meta.main) {
           parseInt(argv.end),
         );
 
-        console.log(urls)
+        console.log(urls);
 
         let maxHeight = argv?.maxHeight;
         let maxWidth = argv?.maxWidth;
@@ -699,7 +699,6 @@ if (import.meta.main) {
         console.log("bookFetchEnd:rmfetchdpi");
       },
     )
-
     .command(
       "difetch",
       "德国柏林国立图书馆(https://digital.staatsbibliothek-berlin.de/)",
@@ -737,7 +736,7 @@ if (import.meta.main) {
       },
       async (argv) => {
         // console.log(argv)
-    
+
         console.log("bookFetchStart:difetch");
         // Aks()
         const urls = await Dig.generateUrls(
@@ -763,6 +762,8 @@ if (import.meta.main) {
           command = ["-h", parseInt(maxWidth), "-w", parseInt(maxWidth)];
         }
 
+        // const NewCommand=[...command,'-H','Referer:https://digital.staatsbibliothek-berlin.de/','-H','User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0']
+
         // // console.log(command)
         let consoleText = urls.map((item) => `${item.url} page=${item.page}`)
           .join("\n");
@@ -771,14 +772,12 @@ if (import.meta.main) {
 
         await Deno.mkdir("diFiles", { recursive: true });
 
-  
-        console.log(command)
+        console.log(command);
         await Dig.downLoadImages(urls, command);
 
         console.log("bookFetchEnd:difetch");
       },
     )
-
     .command(
       "rdifetch",
       "如果有失败记录(文件位于diFiles/undownLoad.txt)则重新下载,每次操作完成后需要手动删除历史记录,然后再下",
@@ -792,6 +791,7 @@ if (import.meta.main) {
 
         if (urls.length > 0) {
           let command = urls[0].command;
+          // const NewCommand=[...command,'-H','Referer:https://digital.staatsbibliothek-berlin.de/','-H','User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0']
           await Dig.downLoadImages(urls, command);
         } else {
           console.log("已全完下载!");
@@ -800,7 +800,6 @@ if (import.meta.main) {
         console.log("bookFetchEnd:rdifetch");
       },
     )
-
     .command(
       "difetchdpi",
       "查看图片分辨率详情",
@@ -831,7 +830,6 @@ if (import.meta.main) {
         console.log("bookFetchEnd:rmfetchdpi");
       },
     )
-
     .command(
       "diconfig",
       "生成配置文diconfig.json(文件位于diFiles/diconfig.toml)\n",
@@ -842,7 +840,6 @@ if (import.meta.main) {
         await Dig.config();
       },
     )
-
     //https://digital.staatsbibliothek-berlin.de/werkansicht?PPN=PPN3303598916&PHYSID=PHYS_0008&DMDID=DMDLOG_0001
     .command(
       "actionfetch",

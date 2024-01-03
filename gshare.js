@@ -157,9 +157,7 @@ const getRealDownUrl = async (link) => {
   //   }
 };
 
-
-const downLoadStep2=async(html,url)=>{
-
+const downLoadStep2 = async (html, url) => {
   const doc = new DOMParser().parseFromString(
     `
            ${html}
@@ -167,7 +165,7 @@ const downLoadStep2=async(html,url)=>{
     "text/html",
   );
   const formEle = doc.querySelector("#download-form");
- let formUrl =  formEle.getAttribute('action')
+  let formUrl = formEle.getAttribute("action");
 
   const response = await fetch(formUrl, {
     method: "POST",
@@ -202,8 +200,7 @@ const downLoadStep2=async(html,url)=>{
   });
 
   await read?.pipeTo(file.writable);
-
-}
+};
 
 export const downLoadImages = async (link) => {
   let url = await getRealDownUrl(link);
@@ -225,17 +222,17 @@ export const downLoadImages = async (link) => {
 
   let resHeaders = response.headers;
   let mime = resHeaders.get("content-type");
- 
-    console.log(mime)
+
+  console.log(mime);
   if (mime == "application/pdf") {
     mime = "pdf";
-  }else if(mime == "text/html; charset=utf-8"){
-    const html = await response.text()
-    console.log(html)
+  } else if (mime == "text/html; charset=utf-8") {
+    const html = await response.text();
+    console.log(html);
 
-   await downLoadStep2(html,url)
+    await downLoadStep2(html, url);
 
-   return true
+    return true;
   }
   let fileName = resHeaders.get("content-disposition");
   let contentDisposition = ContentDisposition.parse(fileName);
