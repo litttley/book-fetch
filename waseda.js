@@ -7,6 +7,7 @@ import * as Toml from "https://deno.land/std@0.208.0/toml/mod.ts";
 const downLoad = async (url, page, config) => {
     let startTime = config?.downLoad?.rate?.startTime;
     let endTime = config?.downLoad?.rate?.endTime;
+    let timeout = config?.downLoad?.timeout;
 
     if (startTime > 0 && endTime > 0 && endTime >= startTime) {
         await sleepRandomAmountOfSeconds(startTime, endTime);
@@ -32,7 +33,7 @@ const downLoad = async (url, page, config) => {
             "Cookie":
                 '_ga=GA1.3.1587801283.1686444147; PCID=4e8d9423-8aaa-2140-a16b-f354bfe01e7e-1686444147371; _gid=GA1.3.1925364011.1699061364; WMONID=G3nF3nSQK-4; JSESSIONID="GW9Ufy6SdV8TQDlPf9_IEI74l9DrzAsxjclNE0eG.VWWAS2:tv-4"',
         },
-        signal: AbortSignal.timeout(1000*60),
+        signal: AbortSignal.timeout(1000*timeout),
     });
 
     let resHeaders = response.headers;
@@ -159,6 +160,7 @@ export const downLoadImages = async (urls) => {
     } else {
         config = {
             downLoad: {
+                timeout:60,
                 rate: {
                     startTime: 0,
                     endTime: 0,
@@ -243,6 +245,7 @@ export const config = async () => {
             Cookie: "",
         };
         let downLoad = {
+            timeout:60,
             rate: {
                 startTime: 3,
                 endTime: 7,
@@ -251,6 +254,7 @@ export const config = async () => {
         let help = {
             headers: "暂时不用设置",
             downLoad: {
+                timeout:"超时时间默为为60秒",
                 rate: {
                     remark: "设置下载时间间隔,默认范围为3-7秒随机设置",
                     startTime: "下载间隔时间(秒)的开始值,类型为数字,",
