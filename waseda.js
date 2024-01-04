@@ -91,35 +91,41 @@ export const generateUrls = async (url, type, pageStart, pageEnd) => {
 
         if (item.endsWith('.html')) {
             let vol = parseInt(item.split('_').pop().replace('.html', ''))
-            htmlUrls.push({ url: item, vol: vol, type: type })
+            htmlUrls.push({ url: `${url}/${item}`, vol: vol, type: type })
         }
         if (item.endsWith('.pdf')) {
             // pdfUrls.push(item)
-            let page = parseInt(item.split('_').pop().replace('.pdf', ''))
-            pdfUrls.push({ url: `${url}\\${item}`, type: type, page: page })
+            let vol = parseInt(item.split('_').pop().replace('.pdf', ''))
+            pdfUrls.push({ url: `${url}/${item}`, type: type, vol: vol,page:0 })
         }
 
     }
 
+    console.log(pdfUrls)
+  const newPdfUrls =   pdfUrls.map((item,index)=>{
+        return {...item,page:index+1}
+    })
 
     if (type == 'html') {
         htmlUrls.sort((a, b) => a.vol - b.vol)
         var page = 1
         for (const item of htmlUrls) {
 
-            console.log(item)
+            // console.log(item)
             const vol = item.vol
 
-            const baseUrl = `${url}/${item.url.split('/')[0]}`
+            const baseUrl = url
 
-            const infoRes = await viewInfoStep(`${url}\\${item.url}`)
+            const infoRes = await viewInfoStep(item.url)
 
             const infoHtml = await infoRes.text()
             let valuesArr = infoHtml.match(/(?<=<A.*href=")([^"]*)(?=")/g);
-            for (const itemhef of valuesArr) {
-                let volPage = parseInt(itemhef.split('p')[1].replace('.jpg'))
+           const newVlaueArr =  valuesArr.map(item=>{return {itemhef:item,volPage:parseInt(item.split('p')[1].replace('.jpg'))}})
+           newVlaueArr.sort((a,b)=>a.volPage-b.volPage)
+            for (const itemValue of newVlaueArr) {
+              
 
-                urls.push({ url: `${baseUrl}/${itemhef}`, type: type, vol: vol, volPage: volPage, page: page })
+                urls.push({ url: `${baseUrl}/${itemValue.itemhef}`, type: type, vol: vol, volPage: itemValue.volPage, page: page })
                 page++
 
             }
@@ -130,7 +136,7 @@ export const generateUrls = async (url, type, pageStart, pageEnd) => {
     
 
     } else {
-        urls.push(...pdfUrls)
+        urls.push(...newPdfUrls)
     }
     urls.sort((a, b) => a.page - b.page)
     return urls .filter((item, index) => {
