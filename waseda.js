@@ -33,7 +33,7 @@ const downLoad = async (url, page, config) => {
             "Cookie":
                 '_ga=GA1.3.1587801283.1686444147; PCID=4e8d9423-8aaa-2140-a16b-f354bfe01e7e-1686444147371; _gid=GA1.3.1925364011.1699061364; WMONID=G3nF3nSQK-4; JSESSIONID="GW9Ufy6SdV8TQDlPf9_IEI74l9DrzAsxjclNE0eG.VWWAS2:tv-4"',
         },
-        signal: AbortSignal.timeout(1000*timeout),
+        signal: AbortSignal.timeout(1000*parseInt(timeout)),
     });
 
     let resHeaders = response.headers;
