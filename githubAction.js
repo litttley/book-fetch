@@ -208,7 +208,10 @@ export const runconfig = async () => {
       fileName = "osConfig";
     } else if (fileDir == "aksFiles") {
       fileName = "aksConfig";
+    } else if (fileDir == "waFiles") {
+      fileName = "waConfig";
     }
+
 
     if (fileDir && fileName) {
       await Deno.mkdir(fileDir, { recursive: true });
