@@ -11,6 +11,7 @@ import * as Gshare from "./gshare.js";
 import * as Loc from "./loc.js";
 import * as Dig from "./digital.js";
 import * as Har from "./harvard.js";
+import * as Was from "./waseda.js";
 // Learn more at https://deno.land/manual/examples/module_metadata#concepts
 if (import.meta.main) {
   yargs(Deno.args)
@@ -37,20 +38,26 @@ if (import.meta.main) {
     }, async (argv) => {
       // console.info('2333')
       // console.info(argv)
-      console.log("bookFetchStart:hafetch");
-      const urls = Hathitrust.generateUrls(
-        argv.id,
-        parseInt(argv.start),
-        parseInt(argv.end),
-      );
-      await Deno.mkdir("haFiles", { recursive: true });
 
-      //打断顺序
-      // urls.sort(() => Math.random() - 0.5);
-      // console.log(urls)
-      await Hathitrust.downLoadImages(urls);
-
-      console.log("bookFetchEnd:hafetch");
+      try {
+        console.log("bookFetchStart:hafetch");
+        const urls = Hathitrust.generateUrls(
+          argv.id,
+          parseInt(argv.start),
+          parseInt(argv.end),
+        );
+        await Deno.mkdir("haFiles", { recursive: true });
+  
+        //打断顺序
+        // urls.sort(() => Math.random() - 0.5);
+        // console.log(urls)
+        await Hathitrust.downLoadImages(urls);
+  
+        console.log("bookFetchEnd:hafetch");
+      } catch (error) {
+        console.log(error?.message)
+      }
+     
     })
     .command(
       "rhafetch",
@@ -986,6 +993,165 @@ if (import.meta.main) {
         await Har.config();
       },
     )
+
+   
+    .command(
+      "wafetch",
+      "早稻田大学图馆(https://www.wul.waseda.ac.jp/kosho/)",
+      (yargs) => {
+        return yargs
+          .option("url", {
+            type: "string",
+            description: "文件url",
+            alias: "u",
+            demandOption: true,
+          })
+          .option("type", {
+            type: "string",
+            description: "下载类型:(pdf,html),默认下载pdf",
+            alias: "t",
+            demandOption: false,
+          })
+
+          .option("start", {
+            type: "string",
+            description: "起始页",
+            alias: "s",
+            demandOption: true,
+          }).option("end", {
+            type: "string",
+            description: "终止页",
+            alias: "e",
+            demandOption: true,
+          })
+
+
+      },
+      async (argv) => {
+        // console.log(argv)
+
+        console.log("bookFetchStart:wafetch");
+        let type='pdf'
+        if(argv?.type=='html'){
+          type='html'
+        }
+        // Aks()
+        const urls = await Was.generateUrls(
+          argv.url,
+          // parseInt(argv.vol),
+          type,
+          parseInt(argv.start),
+          parseInt(argv.end),
+        );
+
+        console.log(urls)
+
+        if(type=='html'){
+          console.log('html详情列表:')
+
+          const consoleUrls = urls.map(item => {
+            return `${item.url} vol=${item.vol} volPage=${item.volPage}  page=${item.page}`
+          }).join('\n')
+          console.log(consoleUrls)
+        }else{
+          console.log('pdf列表:')
+          const consolePdf = urls.map(item => {
+            return `${item.url} page=${item.page}`
+          }).join('\n')
+       
+          console.log(consolePdf)
+        }
+
+      
+        await Deno.mkdir("waFiles", { recursive: true });
+
+        // console.log(command);
+        await Was.downLoadImages(urls);
+
+        console.log("bookFetchEnd:difetch");
+      },
+    )
+
+    .command(
+      "rwafetch",
+      "如果有失败记录(文件位于waFiles/undownLoad.txt)则重新下载,每次操作完成后需要手动删除历史记录,然后再下",
+      (yargs) => {
+        return yargs;
+      },
+      async (argv) => {
+        console.log("bookFetchStart:rwafetch");
+        const urls = await Was.undownLoad();
+        console.log(urls);
+
+        if (urls.length > 0) {
+        
+          // const NewCommand=[...command,'-H','Referer:https://digital.staatsbibliothek-berlin.de/','-H','User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0']
+          await Was.downLoadImages(urls);
+        } else {
+          console.log("已全完下载!");
+        }
+
+        console.log("bookFetchEnd:rwafetch");
+      },
+    )
+    .command(
+      "wafetchlist",
+      "查看下载详情",
+      (yargs) => {
+        return yargs.option("url", {
+          type: "string",
+          description: "文件url",
+          alias: "u",
+          demandOption: true,
+        });
+      },
+      async (argv) => {
+        // console.log(argv)
+        console.log("bookFetchStart:wafetchlist");
+
+
+        try {
+          const { urls, pdfUrls } = await Was.viewInfo(argv.url);
+
+
+          console.log('pdf列表:')
+          const consolePdf = pdfUrls.map(item => {
+            return `${item.url} page=${item.page}`
+          }).join('\n')
+       
+          console.log(consolePdf)
+          console.log('html详情列表:')
+
+          const consoleUrls = urls.map(item => {
+            return `${item.url} vol=${item.vol} volPage=${item.volPage}  page=${item.page}`
+          }).join('\n')
+          console.log(consoleUrls)
+          await Deno.mkdir("waFiles", { recursive: true });
+          // writeJsonSync('haFiles/haConfig.toml', { headers: headers, downLoad: downLoad, help: help }, { spaces: 2 });
+          Deno.writeTextFileSync(
+            "waFiles/waListInfo.txt",
+            `pdf列表:\n${consolePdf}\nhtml详情列表\n${consoleUrls}`,
+          );
+          console.log('已保存至:waFiles/waListInfo.txt')
+
+        } catch (error) {
+          console.log(error?.message);
+        }
+
+        console.log("bookFetchEnd:wafetchlist");
+      },
+    )
+    .command(
+      "waconfig",
+      "生成配置文waconfig.json(文件位于harFiles/waconfig.toml)\n",
+      (yargs) => {
+        return yargs;
+      },
+      async (argv) => {
+        await Was.config();
+      },
+    )
+
     .command(
       "actionfetch",
       "运行后端服务",
