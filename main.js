@@ -13,6 +13,7 @@ import * as Dig from "./digital.js";
 import * as Har from "./harvard.js";
 import * as Was from "./waseda.js";
 import * as Pr from "./princeton.js";
+import * as Bo from "./bodleian.js";
 // Learn more at https://deno.land/manual/examples/module_metadata#concepts
 if (import.meta.main) {
   yargs(Deno.args)
@@ -1273,6 +1274,146 @@ if (import.meta.main) {
         await Pr.config();
       },
     )
+
+    //https://digital.bodleian.ox.ac.uk/objects/5fb71c32-57a5-415a-868f-0ec6904838de/surfaces/dcd4921f-8b7b-4048-8fe7-11516932f84b/
+
+    .command(
+      "bofetch",
+      "牛津大学博德利图书馆(https://digital.bodleian.ox.ac.uk/collections/chinese-digitization-project/)",
+      (yargs) => {
+        return yargs
+          .option("id", {
+            type: "string",
+            description: "文件id",
+            alias: "i",
+            demandOption: true,
+          })
+          .option("start", {
+            type: "string",
+            description: "起始页",
+            alias: "s",
+            demandOption: true,
+          }).option("end", {
+            type: "string",
+            description: "终止页",
+            alias: "e",
+            demandOption: true,
+          })
+          .option("maxHeight", {
+            type: "string",
+            description: "文件高度限制(默认下载最大)",
+            alias: "h",
+            // demandOption: true,
+          })
+          .option("maxWidth", {
+            type: "string",
+            description: "文件宽限制(默认下载最大)",
+            alias: "w",
+            // demandOption: true,
+          });
+      },
+      async (argv) => {
+        // console.log(argv)
+
+        console.log("bookFetchStart:bofetch");
+
+        try {
+          // Aks()
+          const urls = await Bo.generateUrls(
+            argv.id,
+            parseInt(argv.start),
+            parseInt(argv.end),
+          );
+
+          console.log(
+            urls.map((item) => `${item.url} page=${item.page}`).join("\n"),
+          );
+
+          let maxHeight = argv?.maxHeight;
+          let maxWidth = argv?.maxWidth;
+          let command = ["-l"];
+          if (maxHeight) {
+            command = ["-h", parseInt(maxHeight)];
+          }
+          if (maxWidth) {
+            command = ["-w", parseInt(maxWidth)];
+          }
+
+          if (maxHeight && maxWidth) {
+            command = ["-h", parseInt(maxWidth), "-w", parseInt(maxWidth)];
+          }
+
+          await Deno.mkdir("boFiles", { recursive: true });
+
+          // console.log(command);
+          await Bo.downLoadImages(urls, command);
+        } catch (error) {
+          console.log(error?.message);
+        }
+
+        console.log("bookFetchEnd:prfetch");
+      },
+    )
+
+    .command(
+      "rbofetch",
+      "如果有失败记录(文件位于boFiles/undownLoad.txt)则重新下载,每次操作完成后需要手动删除历史记录,然后再下",
+      (yargs) => {
+        return yargs;
+      },
+      async (argv) => {
+        console.log("bookFetchStart:bofetch");
+        const urls = await Bo.undownLoad();
+        console.log(urls);
+
+        if (urls.length > 0) {
+          let command = urls[0].command;
+          // const NewCommand=[...command,'-H','Referer:https://digital.staatsbibliothek-berlin.de/','-H','User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0']
+          await Bo.downLoadImages(urls, command);
+        } else {
+          console.log("已全完下载!");
+        }
+
+        console.log("bookFetchEnd:bofetch");
+      },
+    )
+
+    .command(
+      "bofetchdpi",
+      "查看图片分辨率详情",
+      (yargs) => {
+        return yargs.option("id", {
+          type: "string",
+          description: "文件id",
+          alias: "i",
+          demandOption: true,
+        });
+      },
+      async (argv) => {
+        // console.log(argv)
+        console.log("bookFetchStart:bofetchdpi");
+
+        try {
+          await Bo.viewDpi(argv.id);
+        } catch (error) {
+          console.log(error?.message);
+        }
+
+        console.log("bookFetchEnd:prfetchdpi");
+      },
+    )
+
+    .command(
+      "boconfig",
+      "boconfig.json(文件位于boFiles/boconfig.toml)\n",
+      (yargs) => {
+        return yargs;
+      },
+      async (argv) => {
+        await Bo.config();
+      },
+    )
+
     .command(
       "actionfetch",
       "运行后端服务",
@@ -1538,9 +1679,36 @@ if (import.meta.main) {
       "查看pdf html分页详情",
     )
     .example("book-fetch.exe rwafetch", "重试")
+
+    .example("普林斯顿大学东亚图书馆使用说明:")
     .example(
-      "book-fetch.exe waconfig ",
-      "生成配置文件(位于waFiles/waConfig.toml)\n",
+      "book-fetch.exe prfetch -u https://dpul.princeton.edu/eastasian/catalog/gh93h668k  -s 1 -e 2  -w 100 -h 100  ",
+      "prfetch说明:-w(可选) -h(可选)",
+    )
+    .example(
+      "book-fetch.exe bofetchdpi -u https://dpul.princeton.edu/eastasian/catalog/gh93h668k  ",
+      "查看图片分辨率",
+    )
+    .example("book-fetch.exe rprfetch", "重试")
+    .example(
+      "book-fetch.exe prconfig ",
+      "生成配置文件(位于prFiles/prConfig.toml)\n",
+    )
+
+    .example("牛津大学博德利图书馆使用说明:")
+    .example(
+      "book-fetch.exe bofetch -i 5fb71c32-57a5-415a-868f-0ec6904838de -s 1 -e 2  -w 100 -h 100 ",
+      "bofetch说明:-w(可选) -h(可选)",
+    )
+    .example(
+      "book-fetch.exe bofetchdpi -i 5fb71c32-57a5-415a-868f-0ec6904838de ",
+      "查看图片分辨率",
+    )
+
+    .example("book-fetch.exe rbofetch", "重试")
+    .example(
+      "book-fetch.exe boconfig ",
+      "生成配置文件(位于boFiles/boConfig.toml)\n",
     )
     .strictCommands()
     .scriptName("book-fetch.exe")
