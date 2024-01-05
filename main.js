@@ -1265,6 +1265,49 @@ if (import.meta.main) {
       },
     )
     .command(
+      "prfetchlist",
+      "查看下载详情",
+      (yargs) => {
+        return yargs.option("url", {
+          type: "string",
+          description: "文件url",
+          alias: "u",
+          demandOption: true,
+        });
+      },
+      async (argv) => {
+        // console.log(argv)
+        console.log("bookFetchStart:prfetchlist");
+
+        try {
+          const  urls = await Pr.viewInfo(argv.url);
+        
+        
+         
+          
+          const consoleUrls = urls.map((item) => {
+            return `${item.url} vol=${item.vol} page=${item.page}`;
+          }).join("\n");
+          console.log(`详情列表+${urls.length}`);
+          console.log(consoleUrls);
+       
+
+        
+          await Deno.mkdir("prFiles", { recursive: true });
+          // writeJsonSync('haFiles/haConfig.toml', { headers: headers, downLoad: downLoad, help: help }, { spaces: 2 });
+          Deno.writeTextFileSync(
+            "prFiles/prListInfo.txt",
+            `详情列表+${urls.length}:\n${consoleUrls}\n`,
+          );
+          console.log("已保存至:prFiles/prListInfo.txt");
+        } catch (error) {
+          console.log(error?.message);
+        }
+
+        console.log("bookFetchEnd:prfetchlist");
+      },
+    )
+    .command(
       "prconfig",
       "生成配置文prconfig.json(文件位于prFiles/prconfig.toml)\n",
       (yargs) => {
@@ -1689,6 +1732,7 @@ if (import.meta.main) {
       "book-fetch.exe bofetchdpi -u https://dpul.princeton.edu/eastasian/catalog/gh93h668k  ",
       "查看图片分辨率",
     )
+    .example("book-fetch.exe prfetchlist", "查看列表详情")
     .example("book-fetch.exe rprfetch", "重试")
     .example(
       "book-fetch.exe prconfig ",

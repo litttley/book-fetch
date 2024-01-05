@@ -42,34 +42,46 @@ const generateUrlsStep2 = async (infoUrls) => {
     const manifestObj1 = await response?.json();
 
     // console.log(manifestObj1)
-    const idParam = manifestObj1?.manifests[0];
-    let realmaifestUrl = idParam["@id"];
-
-    const response2 = await fetch(realmaifestUrl, {
-      method: "GET",
-      // responseType: 'stream'
-      headers: {
-        "Accept": "application/json, text/javascript, */*; q=0.01",
-        "Accept-Encoding": "gzip, deflate, br",
-        "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
-
-        // "Host": "ttps://ostasien.digitale-sammlungen.de/",
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36 Edg/118.0.2088.76",
-        //   "Cookie": `${config?.headers?.Cookie}`,
-      },
-    });
-    let manifestObj = await response2.json();
-    const canvases = manifestObj?.sequences[0].canvases;
-    // console.log(canvases)
-    let tmpArr = [];
-    for (const canva of canvases) {
-      let value = canva.images[0].resource.service["@id"];
-
-      tmpArr.push(`${value}/info.json`);
+    const idParamArr = manifestObj1?.manifests;
+    let vol=1
+    let page=1
+    for (const idParam of idParamArr) {
+        let realmaifestUrl = idParam["@id"];
+        const response2 = await fetch(realmaifestUrl, {
+            method: "GET",
+            // responseType: 'stream'
+            headers: {
+              "Accept": "application/json, text/javascript, */*; q=0.01",
+              "Accept-Encoding": "gzip, deflate, br",
+              "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+      
+              // "Host": "ttps://ostasien.digitale-sammlungen.de/",
+              "User-Agent":
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36 Edg/118.0.2088.76",
+              //   "Cookie": `${config?.headers?.Cookie}`,
+            },
+          });
+          let manifestObj = await response2.json();
+          const canvases = manifestObj?.sequences[0].canvases;
+          // console.log(canvases)
+          let tmpArr = [];
+          let volPage=1
+          for (const canva of canvases) {
+            let value = canva.images[0].resource.service["@id"];
+      
+            urls.push({url:`${value}/info.json`,vol:vol,volPage:volPage,page:page});
+            page++
+            volPage++
+          }
+          vol++
     }
 
-    urls.push(...tmpArr);
+
+  
+
+   
+
+    // urls.push(...tmpArr);
   } catch (error) {
     console.log(error);
   }
@@ -120,9 +132,7 @@ export const generateUrls = async (url, pageStart, pageEnd) => {
     }
     const tmpArr = await generateUrlsStep2(mainfestUrl);
     // console.log(tmpArr)
-    let urls = tmpArr.map((item, index) => {
-      return { url: item, page: index + 1 };
-    }).filter((item, index) => {
+    let urls = tmpArr.filter((item, index) => {
       const page = item.page;
       if (page >= pageStart && page <= pageEnd) {
         return true;
@@ -596,3 +606,59 @@ export const viewDpi = async (id) => {
     throw new Error("获取图片分辨率异常");
   }
 };
+
+export const viewInfo = async (url) => {
+    let urls=[]
+    try {
+        const response = await fetch(url, {
+          method: "GET",
+          // responseType: 'stream'
+          headers: {
+            "Accept":
+              "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+            "Accept-Encoding": "gzip, deflate, br",
+            "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+    
+            // "Host": "ttps://ostasien.digitale-sammlungen.de/",
+            "User-Agent":
+              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36 Edg/118.0.2088.76",
+            //   "Cookie": `${config?.headers?.Cookie}`,
+          },
+        });
+    
+        const html = await response.text();
+        // console.log(html)
+    
+        const doc = new DOMParser().parseFromString(
+          `
+               ${html}
+              `,
+          "text/html",
+        );
+        const elements = doc.querySelector(
+          "iframe",
+        );
+    
+        const src = decodeURIComponent(elements.getAttribute("src"));
+    
+        const param = parseURLParams(src);
+        // console.log(param)
+        const mainfestUrl = param?.manifest;
+    
+        // console.log(mainfestUrl)
+        if (!mainfestUrl) {
+          throw "获取元数据异常";
+        }
+        const tmpArr = await generateUrlsStep2(mainfestUrl);
+        // console.log(tmpArr)
+   
+    
+        // console.log(urls);
+        urls.push(...tmpArr)
+        urls.sort((a,b)=> a.page-b.page)
+        return urls;
+      } catch (error) {
+        console.log(error);
+        return [];
+      }
+}
