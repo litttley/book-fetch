@@ -213,10 +213,10 @@ export const downLoadImages = async (urls, command) => {
       }
 
       const cmd = new Deno.Command(path, {
-        args: [...command, urls[i].url, urls[i].page],
+        args: [...command, urls[i].url,`./boFiles/${urls[i].page}`],
         stdout: "piped",
         stderr: "inherit",
-        cwd: "boFiles",
+        // cwd: "boFiles",
       });
       const output = await cmd.output();
       const logs = new TextDecoder().decode(output.stdout).trim();
