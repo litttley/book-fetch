@@ -224,8 +224,7 @@ export const downLoadImages = async (urls, command) => {
   // let infoUrl = await  getJsonInfo(urls[0].url)
 
   if (
-    !(await checkFileExists("dezoomify-rs.exe") ||
-      await checkFileExists("dezoomify-rs"))
+    !(await checkFileExists("dezoomify-rs.exe") ||await checkFileExists("dezoomify-rs"))
   ) {
     await downLoaddezoomify();
   }
@@ -239,16 +238,16 @@ export const downLoadImages = async (urls, command) => {
       // }
 
       let path = "./dezoomify-rs.exe";
-
+      console.log(platform)
       if (platform !== "windows") {
         path = "./dezoomify-rs";
       }
 
       const cmd = new Deno.Command(path, {
-        args: [...command, urls[i].url, urls[i].page],
+        args: [...command, urls[i].url, `./osFiles/${urls[i].page}`],
         stdout: "piped",
         stderr: "inherit",
-        cwd: "osFiles",
+        // cwd: "osFiles",
       });
       const output = await cmd.output();
       const logs = new TextDecoder().decode(output.stdout).trim();
