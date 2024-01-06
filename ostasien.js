@@ -224,7 +224,8 @@ export const downLoadImages = async (urls, command) => {
   // let infoUrl = await  getJsonInfo(urls[0].url)
 
   if (
-    !(await checkFileExists("dezoomify-rs.exe") ||await checkFileExists("dezoomify-rs"))
+    !(await checkFileExists("dezoomify-rs.exe") ||
+      await checkFileExists("dezoomify-rs"))
   ) {
     await downLoaddezoomify();
   }
