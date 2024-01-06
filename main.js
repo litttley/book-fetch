@@ -267,23 +267,62 @@ if (import.meta.main) {
             description: "终止页",
             alias: "e",
             demandOption: true,
+          }).option("maxHeight", {
+            type: "string",
+            description: "文件高度限制(默认下载最大)",
+            alias: "h",
+            // demandOption: true,
+          })
+          .option("maxWidth", {
+            type: "string",
+            description: "文件宽限制(默认下载最大)",
+            alias: "w",
+            // demandOption: true,
           });
+
+        ;
       },
       async (argv) => {
         // console.info('2333')
         console.log("bookFetchStart:osfetch");
+        try {
+          const urls = await Os.generateUrls(
+            argv.id,
+            parseInt(argv.start),
+            parseInt(argv.end),
+          );
+          console.log(urls);
+          await Deno.mkdir("osFiles", { recursive: true });
+          // //打断顺序
+          // urls.sort(() => Math.random() - 0.5)
+          // console.log(urls)
 
-        const urls = Os.generateUrls(
-          argv.id,
-          parseInt(argv.start),
-          parseInt(argv.end),
-        );
-        console.log(urls);
-        await Deno.mkdir("osFiles", { recursive: true });
-        // //打断顺序
-        // urls.sort(() => Math.random() - 0.5)
-        // console.log(urls)
-        await Os.downLoadImages(urls);
+          console.log(
+            urls.map((item) => `${item.url} page=${item.page}`).join("\n"),
+          );
+
+          let maxHeight = argv?.maxHeight;
+          let maxWidth = argv?.maxWidth;
+          let command = ["-l"];
+          if (maxHeight) {
+            command = ["-h", parseInt(maxHeight)];
+          }
+          if (maxWidth) {
+            command = ["-w", parseInt(maxWidth)];
+          }
+
+          if (maxHeight && maxWidth) {
+            command = ["-h", parseInt(maxWidth), "-w", parseInt(maxWidth)];
+          }
+
+
+          await Os.downLoadImages(urls, command);
+        } catch (error) {
+          console.log(error?.message)
+        }
+
+
+
 
         console.log("bookFetchEnd:osfetch");
       },
@@ -300,12 +339,37 @@ if (import.meta.main) {
         console.log(urls);
 
         if (urls.length > 0) {
-          await Os.downLoadImages(urls);
+          let command = urls[0].command;
+          await Os.downLoadImages(urls,command);
         } else {
           console.log("已全完下载!");
         }
 
         console.log("bookFetchEnd:rosfetch");
+      },
+    )
+    .command(
+      "osfetchdpi",
+      "查看图片分辨率详情",
+      (yargs) => {
+        return yargs.option("id", {
+          type: "string",
+          description: "文件id",
+          alias: "i",
+          demandOption: true,
+        });
+      },
+      async (argv) => {
+        // console.log(argv)
+        console.log("bookFetchStart:osfetchdpi");
+
+        try {
+          await Os.viewDpi(argv.id);
+        } catch (error) {
+          console.log(error?.message);
+        }
+
+        console.log("bookFetchEnd:osfetchdpi");
       },
     )
     .command(
@@ -1280,19 +1344,19 @@ if (import.meta.main) {
         console.log("bookFetchStart:prfetchlist");
 
         try {
-          const  urls = await Pr.viewInfo(argv.url);
-        
-        
-         
-          
+          const urls = await Pr.viewInfo(argv.url);
+
+
+
+
           const consoleUrls = urls.map((item) => {
             return `${item.url} vol=${item.vol} page=${item.page}`;
           }).join("\n");
           console.log(`详情列表+${urls.length}`);
           console.log(consoleUrls);
-       
 
-        
+
+
           await Deno.mkdir("prFiles", { recursive: true });
           // writeJsonSync('haFiles/haConfig.toml', { headers: headers, downLoad: downLoad, help: help }, { spaces: 2 });
           Deno.writeTextFileSync(

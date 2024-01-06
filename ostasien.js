@@ -1,6 +1,7 @@
 // import { sleepRandomAmountOfSeconds } from "https://deno.land/x/sleep/mod.ts";
 import * as Toml from "https://deno.land/std@0.208.0/toml/mod.ts";
 import { readline } from "https://deno.land/x/readline@v1.1.0/mod.ts";
+import os from "https://deno.land/x/dos@v0.11.0/mod.ts";
 import moment from "npm:moment";
 const downLoad = async (url, page, config) => {
   //   let startTime = config?.downLoad?.rate?.startTime;
@@ -52,40 +53,218 @@ const downLoad = async (url, page, config) => {
   file.close();
 };
 
-export const downLoadImages = async (urls) => {
+// export const downLoadImages = async (urls) => {
+//   let config = null;
+
+//   //   if (await checkFileExists("osFiles/osConfig.toml")) {
+//   //     config = Toml.parse(Deno.readTextFileSync("osFiles/osConfig.toml"));
+//   //   } else {
+//   //     config = {
+//   //       headers: {
+//   //         Cookie: "必填",
+//   //       },
+//   //       downLoad: {
+//   //         rate: {
+//   //           startTime: 0,
+//   //           endTime: 0,
+//   //         },
+//   //       },
+//   //     };
+//   //   }
+
+//   //   console.log("下载配置\n");
+//   //   console.info(config);
+
+//   //   if (config?.headers?.Cookie == "") {
+//   //     throw "cookie为必填项,请使用osConfig命令生成配置文件设置";
+//   //   }
+
+//   for (var i = 0; i < urls.length; i++) {
+//     try {
+//       await downLoad(urls[i].url, urls[i].page, config);
+//     } catch (error) {
+//       console.log(error);
+//       await Deno.writeTextFile(
+//         "osFiles/undownLoad.txt",
+//         JSON.stringify({ url: urls[i].url, page: urls[i].page }) + "\n",
+//         { append: true },
+//       );
+//     }
+//   }
+// };
+
+export const downLoaddezoomify = async () => {
+  console.log("下载dezoomify-rs....");
+  const client = Deno.createHttpClient({ http2: true });
+
+  const platform = os.platform(); // return the os platform for eg: windows, linux, darwin on mac ..
+  let url =
+    "https://mirror.ghproxy.com/https://github.com/lovasoa/dezoomify-rs/releases/download/v2.11.2/dezoomify-rs.exe";
+  if (platform == "linux") {
+    url =
+      "https://mirror.ghproxy.com/https://github.com/lovasoa/dezoomify-rs/releases/download/v2.12.0/dezoomify-rs-linux.tgz";
+  }
+  if (platform == "mac") {
+    url =
+      "https://mirror.ghproxy.com/https://github.com/lovasoa/dezoomify-rs/releases/download/v2.12.0/dezoomify-rs-macos.tgz";
+  }
+
+  if (platform == "darwin") {
+    throw "不支持darwin";
+  }
+  const response = await fetch(
+    url,
+    {
+      method: "GET",
+      // responseType: 'stream'
+      headers: {
+        "Accept":
+          "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+
+        // "Host": "ttps://ostasien.digitale-sammlungen.de/",
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36 Edg/118.0.2088.76",
+        //   "Cookie": `${config?.headers?.Cookie}`,
+      },
+      client,
+    },
+  );
+
+  let resHeaders = response.headers;
+
+  // let mime = resHeaders.get("content-type");
+  let disposition = resHeaders.get("Content-Disposition");
+
+  let fileName = disposition.split("=")[1];
+  console.log(fileName);
+
+  // if (mime == "application/octet-stream") {
+  //   mime = "exe";
+  // } else {
+  //   throw "下载失败" + mime;
+  // }
+
+  let read = response.body;
+
+  const file = await Deno.open(`./${fileName}`, {
+    create: true,
+    write: true,
+  });
+
+  await read?.pipeTo(file.writable);
+
+  // file.close();
+  await Deno.mkdir("osFiles", { recursive: true });
+  if (platform == "linux") {
+    console.log("解压linux");
+    // await tgz.uncompress("./dezoomify-rs-linux.tgz", "./osFiles");
+    const src = await Deno.open(`./${fileName}`, { read: true });
+    const dest = await Deno.open("./dezoomify-rs", {
+      create: true,
+      write: true,
+    });
+    await src.readable
+      .pipeThrough(new DecompressionStream("gzip"))
+      .pipeTo(dest.writable);
+
+    const cmd = new Deno.Command("sh", {
+      args: ["-c", "ls"],
+      stdout: "piped",
+      stderr: "inherit",
+      // cwd: "osFiles",
+    });
+    const output = await cmd.output();
+    const logs = new TextDecoder().decode(output.stdout).trim();
+    console.log(logs);
+  }
+
+  if (platform == "mac") {
+    console.log("解压mac");
+    // await tgz.uncompress("./dezoomify-rs-linux.tgz", "./osFiles");
+    const src = await Deno.open("./dezoomify-rs-macos.tgz", { read: true });
+    const dest = await Deno.open("./dezoomify-rs", {
+      create: true,
+      write: true,
+    });
+    await src.readable
+      .pipeThrough(new DecompressionStream("gzip"))
+      .pipeTo(dest.writable);
+  }
+
+  client.close();
+  console.log("已下载dezoomify-rs....");
+};
+export const downLoadImages = async (urls, command) => {
   let config = null;
 
-  //   if (await checkFileExists("osFiles/osConfig.toml")) {
-  //     config = Toml.parse(Deno.readTextFileSync("osFiles/osConfig.toml"));
-  //   } else {
-  //     config = {
-  //       headers: {
-  //         Cookie: "必填",
+  // if (await checkFileExists("koFiles/koConfig.toml")) {
+  //   config = Toml.parse(Deno.readTextFileSync("koFiles/koConfig.toml"));
+  // } else {
+  //   config = {
+  //     headers: {
+  //       Cookie: "必填",
+  //     },
+  //     downLoad: {
+  //       rate: {
+  //         startTime: 0,
+  //         endTime: 0,
   //       },
-  //       downLoad: {
-  //         rate: {
-  //           startTime: 0,
-  //           endTime: 0,
-  //         },
-  //       },
-  //     };
-  //   }
+  //     },
+  //   };
+  // }
 
-  //   console.log("下载配置\n");
-  //   console.info(config);
+  // console.log("下载配置\n");
+  // console.info(config);
 
   //   if (config?.headers?.Cookie == "") {
-  //     throw "cookie为必填项,请使用osConfig命令生成配置文件设置";
+  //     throw "cookie为必填项,请使用koConfig命令生成配置文件设置";
   //   }
+  // let infoUrl = await  getJsonInfo(urls[0].url)
 
+  if (
+    !(await checkFileExists("dezoomify-rs.exe") ||
+      await checkFileExists("dezoomify-rs"))
+  ) {
+    await downLoaddezoomify();
+  }
+  const platform = os.platform();
   for (var i = 0; i < urls.length; i++) {
     try {
-      await downLoad(urls[i].url, urls[i].page, config);
+      console.log(urls[i].url);
+      // let infoUrl = await getJsonInfo(urls[i].url);
+      // if (!infoUrl) {
+      //     throw "获取info.json失败";
+      // }
+
+      let path = "./dezoomify-rs.exe";
+
+      if (platform !== "windows") {
+        path = "./dezoomify-rs";
+      }
+
+      const cmd = new Deno.Command(path, {
+        args: [...command, urls[i].url, urls[i].page],
+        stdout: "piped",
+        stderr: "inherit",
+        cwd: "osFiles",
+      });
+      const output = await cmd.output();
+      const logs = new TextDecoder().decode(output.stdout).trim();
+      console.log(logs);
+      if (!output.success) {
+        throw "下载失败";
+      }
     } catch (error) {
       console.log(error);
       await Deno.writeTextFile(
         "osFiles/undownLoad.txt",
-        JSON.stringify({ url: urls[i].url, page: urls[i].page }) + "\n",
+        JSON.stringify({
+          url: urls[i].url,
+          page: urls[i].page,
+          command: command,
+        }) + "\n",
         { append: true },
       );
     }
@@ -131,17 +310,56 @@ export const undownLoad = async () => {
   return urls;
 };
 
-export const generateUrls = (fileId, pageStart, pageEnd) => {
+export const generateUrls =async  (fileId, pageStart, pageEnd) => {
   let urls = [];
-  let pages = pageEnd + 1;
-  for (var i = pageStart; i < pages; i++) {
-    let fill = i + "";
-    let url = `https://api.digitale-sammlungen.de/iiif/image/v2/${fileId}_${
-      fill.padStart(5, "0")
-    }/full/full/0/default.jpg`;
-    console.log(url);
-    urls.push({ page: i, url: url });
+
+  const response = await fetch(`https://api.digitale-sammlungen.de/iiif/presentation/v2/${fileId}/manifest`, {
+    method: "GET",
+    headers: {
+      "Accept":"application/json, text/javascript, */*; q=0.01",
+      "Accept-Encoding": "gzip, deflate, br",
+      "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+
+      // "Host": "ttps://ostasien.digitale-sammlungen.de/",
+      "User-Agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36 Edg/118.0.2088.76",
+      //   "Cookie": `${config?.headers?.Cookie}`,
+    },
+  });
+
+  const manifestObj = await response?.json();
+  const canvases = manifestObj?.sequences[0].canvases;
+ 
+  let tmpArr = [];
+  let page=1
+  for (const canva of canvases) {
+    let value = canva.images[0].resource.service["@id"];
+
+    tmpArr.push({url:`${value}/info.json`,page:page});
+    page++
   }
+
+  
+  let arr  = tmpArr .filter((item, index) => {
+    const page = item.page;
+    if (page >= pageStart && page <= pageEnd) {
+      return true;
+    } else {
+      return false;
+    }
+  });
+
+  urls.push(...arr)
+
+  // let pages = pageEnd + 1;
+  // for (var i = pageStart; i < pages; i++) {
+  //   let fill = i + "";
+  //   let url = `https://api.digitale-sammlungen.de/iiif/image/v2/${fileId}_${
+  //     fill.padStart(5, "0")
+  //   }/full/full/0/default.jpg`;
+  //   console.log(url);
+  //   urls.push({ page: i, url: url });
+  // }
   return urls;
 };
 
@@ -198,5 +416,37 @@ export const config = async () => {
     console.log("文件已生成:osFiles/osConfig.toml");
   } catch (error) {
     console.log(error);
+  }
+};
+
+
+export const viewDpi = async (id) => {
+  const urls = await generateUrls(id, 1, 1);
+
+  //   console.log(urls)
+
+  const platform = os.platform();
+
+  let path = "./dezoomify-rs.exe";
+
+  if (platform !== "windows") {
+    path = "./dezoomify-rs";
+  }
+
+  if (urls.length > 0) {
+    const cmd = new Deno.Command(path, {
+      args: [urls[0].url, "--compression"],
+      stdout: "piped",
+      stderr: "inherit",
+      cwd: "boFiles",
+    });
+    const output = await cmd.output();
+    const logs = new TextDecoder().decode(output.stdout).trim();
+    console.log(logs);
+    if (!output.success) {
+      throw new Error("获取图片分辨率异常");
+    }
+  } else {
+    throw new Error("获取图片分辨率异常");
   }
 };
