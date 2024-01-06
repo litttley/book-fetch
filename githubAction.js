@@ -192,7 +192,7 @@ export const runconfig = async () => {
   try {
     let text = Deno.readTextFileSync("./actionRunConfig.toml");
 
-    let textArr = text.split("\n");
+    let textArr = text.split("\n").filter(item=>item!='');
     console.log(textArr);
     let command = textArr[1].trim().replace("#", "");
     let fileDir = textArr[0].trim().replace("#", "");
