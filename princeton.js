@@ -594,7 +594,7 @@ export const viewDpi = async (id) => {
       args: [urls[0].url, "--compression"],
       stdout: "piped",
       stderr: "inherit",
-      cwd: "prFiles",
+      // cwd: "prFiles",
     });
     const output = await cmd.output();
     const logs = new TextDecoder().decode(output.stdout).trim();
