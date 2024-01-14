@@ -14,6 +14,7 @@ import * as Har from "./harvard.js";
 import * as Was from "./waseda.js";
 import * as Pr from "./princeton.js";
 import * as Bo from "./bodleian.js";
+import * as Sh from "./shanben.js";
 // Learn more at https://deno.land/manual/examples/module_metadata#concepts
 if (import.meta.main) {
   yargs(Deno.args)
@@ -1518,6 +1519,169 @@ if (import.meta.main) {
       },
       async (argv) => {
         await Bo.config();
+      },
+    )
+
+  .command(
+      "shfetchlist",
+      "查看下载详情",
+      (yargs) => {
+        return yargs.option("nu", {
+          type: "string",
+          description: "文件id",
+          alias: "u",
+          demandOption: true,
+        }).option("no", {
+          type: "string",
+          description: "文件编号",
+          alias: "o",
+          demandOption: true,
+        });
+      },
+      async (argv) => {
+        // console.log(argv)
+        console.log("bookFetchStart:shfetchlist");
+        let url=`http://shanben.ioc.u-tokyo.ac.jp/main_p.php?nu=${argv.nu}&order=rn_no&no=${argv.no} `
+        try {
+
+
+          const {imageUrls, pdfUrls} = await Sh.viewInfo(url);
+
+
+
+
+          const consolePdfUrls = pdfUrls.map((item) => {
+            return `${item.url}   page=${item.page}`;
+          }).join("\n");
+          console.log(`pdf详情列表+${consolePdfUrls.length}`);
+          console.log(consolePdfUrls);
+
+
+          // const consoleImageUrls = imageUrls.map((item) => {
+          //   return `${item.url}   page=${item.page}`;
+          // }).join("\n");
+          // console.log(`图片详情列表+${consoleImageUrls.length}`);
+          // console.log(consoleImageUrls);
+
+
+          await Deno.mkdir("shFiles", { recursive: true });
+          // // writeJsonSync('haFiles/haConfig.toml', { headers: headers, downLoad: downLoad, help: help }, { spaces: 2 });
+          Deno.writeTextFileSync(
+            "shFiles/shListInfo.txt",
+            `详情列表+${consolePdfUrls.length}:\n${consolePdfUrls}\n`,
+          );
+          // console.log("已保存至:prFiles/prListInfo.txt");
+        } catch (error) {
+          console.log(error?.message);
+        }
+
+        console.log("bookFetchEnd:prfetchlist");
+      },
+    )
+     .command(
+      "shfetch",
+      "东京大学图书馆(http://shanben.ioc.u-tokyo.ac.jp/)",
+      (yargs) => {
+        return yargs
+          .option("nu", {
+            type: "string",
+            description: "文件id",
+            alias: "u",
+            demandOption: true,
+          })
+          .option("no", {
+            type: "string",
+            description: "文件编号",
+            alias: "o",
+            demandOption: true,
+          })
+          .option("start", {
+            type: "string",
+            description: "起始页",
+            alias: "s",
+            demandOption: true,
+          }).option("end", {
+            type: "string",
+            description: "终止页",
+            alias: "e",
+            demandOption: true,
+          })
+       
+        ;
+      },
+      async (argv) => {
+        // console.log(argv)
+
+        console.log("bookFetchStart:shfetch");
+        // Aks()
+        const urls = await Sh.generateUrls(
+          argv.nu,
+          argv.no,
+          // parseInt(argv.vol),
+          parseInt(argv.start),
+          parseInt(argv.end),
+        );
+
+     
+
+  
+
+    
+ 
+   
+        let consoleText = urls.map((item) => `${item.url} page=${item.page}`)
+          .join("\n");
+        console.log(consoleText);
+    
+
+        await Deno.mkdir("shFiles", { recursive: true });
+
+        // console.log(command);
+        await Sh.downLoadImages(urls);
+
+        console.log("bookFetchEnd:shfetch");
+      },
+    )
+
+    .command(
+      "rshfetch",
+      "如果有失败记录(文件位于shFiles/undownLoad.txt)则重新下载,每次操作完成后需要手动删除历史记录,然后再下",
+      (yargs) => {
+        return yargs;
+      },
+      async (argv) => {
+        console.log("bookFetchStart:bofetch");
+        const urls = await Sh.undownLoad();
+        console.log(urls);
+
+        if (urls.length > 0) {
+    
+         
+          await Sh.downLoadImages(urls);
+        } else {
+          console.log("已全完下载!");
+        }
+
+        console.log("bookFetchEnd:bofetch");
+      },
+    )
+
+    .command(
+      "shconfig",
+      "生成配置文shconfig.json(文件位于shFiles/shconfig.toml)\n",
+      (yargs) => {
+        return yargs;
+      },
+      async (argv) => {
+        await Sh.config();
+        // //打断顺序
+        // urls.sort(() => Math.random() - 0.5)
+        // // console.log(urls)
+        // if (urls.length > 0) {
+        //   await Hathitrust.downLoadImages(urls)
+        // } else {
+        //   console.log('已全完下载!')
+        // }
       },
     )
 
