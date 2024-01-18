@@ -178,6 +178,49 @@ if (import.meta.main) {
         await Nl.config();
       },
     )
+
+    .command(
+      "kofetchlist",
+      "查看下载详情",
+      (yargs) => {
+        return yargs.option("uci", {
+          type: "string",
+          description: "文件id",
+          alias: "u",
+          demandOption: true,
+        });
+      },
+      async (argv) => {
+        // console.log(argv)
+        console.log("bookFetchStart:kofetchlist");
+
+        try {
+
+         
+          const  urls  = await Ko.viewInfo(argv.uci);
+
+          console.log(`下载列表:+${urls.length}`);
+          const consoleUrls = urls.map((item) => {
+            return `${item.url} vol=${item.vol} page=${item.page}`;
+          }).join("\n");
+
+          console.log(consoleUrls);
+           
+          await Deno.mkdir("koFiles", { recursive: true });
+          // writeJsonSync('haFiles/haConfig.toml', { headers: headers, downLoad: downLoad, help: help }, { spaces: 2 });
+          Deno.writeTextFileSync(
+            "koFiles/koListInfo.txt",
+            `下载列表:+${urls.length}\n${consoleUrls}\n`,
+          );
+          console.log("已保存至:koFiles/koListInfo.txt");
+        } catch (error) {
+          console.log(error?.message);
+        }
+
+        console.log("bookFetchEnd:kofetchlist");
+      },
+    )
+
     .command(
       "kofetch",
       "下载高丽大学图书馆(http://kostma.korea.ac.kr/)",
@@ -203,7 +246,7 @@ if (import.meta.main) {
       async (argv) => {
         console.log("bookFetchStart:kofetch");
 
-        const urls = Ko.generateUrls(
+        const urls = await Ko.generateUrls(
           argv.uci,
           parseInt(argv.start),
           parseInt(argv.end),

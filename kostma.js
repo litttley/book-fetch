@@ -1,6 +1,10 @@
 import { sleepRandomAmountOfSeconds } from "https://deno.land/x/sleep/mod.ts";
 import * as Toml from "https://deno.land/std@0.208.0/toml/mod.ts";
 import { readline } from "https://deno.land/x/readline@v1.1.0/mod.ts";
+import {
+  DOMParser,
+  Element,
+} from "https://deno.land/x/deno_dom/deno-dom-wasm.ts";
 import moment from "npm:moment";
 const downLoad = async (url, page, config) => {
   let startTime = config?.downLoad?.rate?.startTime;
@@ -31,10 +35,11 @@ const downLoad = async (url, page, config) => {
 
   let resHeaders = response.headers;
   let mime = resHeaders.get("content-type");
-
+  console.log(mime)
   if (mime == "image/jpeg") {
     mime = "jpeg";
   } else {
+    console.log(await response.text())
     throw "下载失败" + mime;
   }
 
@@ -140,17 +145,67 @@ export const undownLoad = async () => {
   return urls;
 };
 
-export const generateUrls = (fileId, pageStart, pageEnd) => {
-  let urls = [];
-  let pages = pageEnd + 1;
-  for (var i = pageStart; i < pages; i++) {
-    let fill = i + "";
-    let url = `http://kostma.korea.ac.kr/data/des/${fileId}/IMG/AS_SA_244_001/${
-      fill.padStart(4, "0")
-    }.jpg`;
-    console.log(url);
-    urls.push({ page: i, url: url });
+
+
+export const generateUrls =async  (fileId, pageStart, pageEnd) => {
+
+  const response = await fetch(`http://kostma.korea.ac.kr/viewer/viewerDes?uci=${fileId}&bookNum=&pageNum=`, {
+    method: "GET",
+    // responseType: 'stream'
+    headers: {
+      // "Content-Type":"image/jpeg"
+      //   "Accept":
+      //     "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+      //   "Accept-Encoding": "gzip, deflate, br",
+      //   "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+
+      //   "Host": "babel.hathitrust.org",
+      "User-Agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36 Edg/118.0.2088.76",
+    },
+ 
+  });
+  const html = await response.text();
+
+  const lines = html.split('\n')
+ 
+  let text = "";
+  for (const line of lines) {
+    if (line.includes('var bookInfos =')) {
+      text += line;
+      break
+    }
   }
+
+
+
+  const jsonStr =  text.split('=')[1].replace(';','').trim()
+ 
+ 
+   const bookInfos =  JSON.parse(jsonStr)
+ 
+    const tmpUrls=[]
+    let page=1
+   for (const info of bookInfos) {
+    const bookNum = info.bookNum
+    const imgInfos = info.imgInfos
+    for (const imgInfo  of imgInfos) {
+      const bookPath = imgInfo.bookPath
+      const fname = imgInfo.fname
+      tmpUrls.push({url:`http://kostma.korea.ac.kr/data/des/${fileId}/IMG/${bookPath}/${fname}` ,vol:bookNum,volPage:imgInfo.num,page:page})
+      page++
+    }
+ 
+   }
+  const  urls =  tmpUrls.filter((item, index) => {
+    const page = item.page;
+    if (page >= pageStart && page <= pageEnd) {
+        return true;
+    } else {
+        return false;
+    }
+});
+ 
   return urls;
 };
 
@@ -208,4 +263,58 @@ export const config = async () => {
   } catch (error) {
     console.log(error);
   }
+};
+
+
+export const viewInfo = async (fileId) => {
+  const response = await fetch(`http://kostma.korea.ac.kr/viewer/viewerDes?uci=${fileId}&bookNum=&pageNum=`, {
+    method: "GET",
+    // responseType: 'stream'
+    headers: {
+      // "Content-Type":"image/jpeg"
+      //   "Accept":
+      //     "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+      //   "Accept-Encoding": "gzip, deflate, br",
+      //   "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+
+      //   "Host": "babel.hathitrust.org",
+      "User-Agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36 Edg/118.0.2088.76",
+    },
+ 
+  });
+  const html = await response.text();
+
+  const lines = html.split('\n')
+ 
+  let text = "";
+  for (const line of lines) {
+    if (line.includes('var bookInfos =')) {
+      text += line;
+      break
+    }
+  }
+
+
+
+  const jsonStr =  text.split('=')[1].replace(';','').trim()
+ 
+ 
+   const bookInfos =  JSON.parse(jsonStr)
+ 
+    const urls=[]
+    let page=1
+   for (const info of bookInfos) {
+    const bookNum = info.bookNum
+    const imgInfos = info.imgInfos
+    for (const imgInfo  of imgInfos) {
+      const bookPath = imgInfo.bookPath
+      const fname = imgInfo.fname
+      urls.push({url:`http://kostma.korea.ac.kr/data/des/${fileId}/IMG/${bookPath}/${fname}` ,vol:bookNum,volPage:imgInfo.num,page:page})
+      page++
+    }
+ 
+   }
+
+   return urls
 };
