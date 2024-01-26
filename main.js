@@ -1394,7 +1394,7 @@ if (import.meta.main) {
 
 
           const consoleUrls = urls.map((item) => {
-            return `${item.url} vol=${item.vol} page=${item.page}`;
+            return `${item.url} vol=${item.vol} volPage=${item.volPage} page=${item.page}`;
           }).join("\n");
           console.log(`详情列表+${urls.length}`);
           console.log(consoleUrls);
@@ -1908,6 +1908,10 @@ if (import.meta.main) {
     .example(
       "book-fetch.exe  kofetch -u RIKS+CRMA+KSM-WZ.1893.0000-20090716.AS_SA_244 -s 1 -e 57   ",
       "kofetch下载示例",
+    )
+    .example(
+      "book-fetch.exe  kofetchlist -u RIKS+CRMA+KSM-WZ.1893.0000-20090716.AS_SA_244",
+      "kofetchlist示例",
     )
     .example("book-fetch.exe rkofetch  ", "rkofetch重试示例")
     .example(
