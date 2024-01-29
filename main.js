@@ -15,6 +15,7 @@ import * as Was from "./waseda.js";
 import * as Pr from "./princeton.js";
 import * as Bo from "./bodleian.js";
 import * as Sh from "./shanben.js";
+import * as Ni from "./ni.js";
 // Learn more at https://deno.land/manual/examples/module_metadata#concepts
 if (import.meta.main) {
   yargs(Deno.args)
@@ -1717,6 +1718,195 @@ if (import.meta.main) {
       },
       async (argv) => {
         await Sh.config();
+        // //打断顺序
+        // urls.sort(() => Math.random() - 0.5)
+        // // console.log(urls)
+        // if (urls.length > 0) {
+        //   await Hathitrust.downLoadImages(urls)
+        // } else {
+        //   console.log('已全完下载!')
+        // }
+      },
+    )
+
+      //日本古典书籍的唯一门户网站
+    //https://kokusho.nijl.ac.jp/?ln=ja
+
+
+    .command(
+      "nifetch",
+      "日本古典书籍的唯一门户网站(https://kokusho.nijl.ac.jp/?ln=ja)",
+      (yargs) => {
+        return yargs
+          .option("id", {
+            type: "string",
+            description: "文件id",
+            alias: "i",
+            demandOption: true,
+          })
+          // .option("no", {
+          //   type: "string",
+          //   description: "文件编号",
+          //   alias: "o",
+          //   demandOption: true,
+          // })
+          .option("start", {
+            type: "string",
+            description: "起始页",
+            alias: "s",
+            demandOption: true,
+          }).option("end", {
+            type: "string",
+            description: "终止页",
+            alias: "e",
+            demandOption: true,
+          }).option("maxHeight", {
+            type: "string",
+            description: "文件高度限制(默认下载最大)",
+            alias: "h",
+            // demandOption: true,
+          })
+          .option("maxWidth", {
+            type: "string",
+            description: "文件宽限制(默认下载最大)",
+            alias: "w",
+            // demandOption: true,
+          })
+       
+        ;
+      },
+      async (argv) => {
+        // console.log(argv)
+
+        console.log("bookFetchStart:nifetch");
+        // Aks()
+        const urls = await Ni.generateUrls(
+          argv.id,
+ 
+          // parseInt(argv.vol),
+          parseInt(argv.start),
+          parseInt(argv.end),
+        );
+
+     
+
+  
+
+    
+ 
+   
+        let consoleText = urls.map((item) => `${item.url} page=${item.page}`)
+          .join("\n");
+        console.log(consoleText);
+    
+
+        await Deno.mkdir("niFiles", { recursive: true });
+
+        let maxHeight = argv?.maxHeight;
+        let maxWidth = argv?.maxWidth;
+        let command = ["-l"];
+        if (maxHeight) {
+          command = ["-h", parseInt(maxHeight)];
+        }
+        if (maxWidth) {
+          command = ["-w", parseInt(maxWidth)];
+        }
+
+        if (maxHeight && maxWidth) {
+          command = ["-h", parseInt(maxWidth), "-w", parseInt(maxWidth)];
+        }
+
+        await Ni.downLoadImages(urls,['-f','jpg',...command]);
+
+        console.log("bookFetchEnd:nifetch");
+      },
+    )
+
+    .command(
+      "nifetchdpi",
+      "查看图片分辨率详情",
+      (yargs) => {
+        return yargs.option("id", {
+          type: "string",
+          description: "文件id",
+          alias: "i",
+          demandOption: true,
+        });
+      },
+      async (argv) => {
+        // console.log(argv)
+        console.log("bookFetchStart:nifetchdpi");
+
+        try {
+          await Ni.viewDpi(argv.id);
+        } catch (error) {
+          console.log(error?.message);
+        }
+
+        console.log("bookFetchEnd:nifetchdpi");
+      },
+    )
+
+    .command(
+      "nifetchlist",
+      "查看下载详情",
+      (yargs) => {
+        return yargs.option("id", {
+          type: "string",
+          description: "文件id",
+          alias: "i",
+          demandOption: true,
+        });
+      },
+      async (argv) => {
+        // console.log(argv)
+        console.log("bookFetchStart:nifetchlist");
+ 
+        try {
+
+
+          const urls= await Ni.viewInfo(argv.id);
+
+
+
+
+          const consoleUrls = urls.map((item) => {
+            return `${item.url}   page=${item.page}`;
+          }).join("\n");
+          console.log(`pdf详情列表+${consoleUrls.length}`);
+          console.log(consoleUrls);
+
+
+          // const consoleImageUrls = imageUrls.map((item) => {
+          //   return `${item.url}   page=${item.page}`;
+          // }).join("\n");
+          // console.log(`图片详情列表+${consoleImageUrls.length}`);
+          // console.log(consoleImageUrls);
+
+
+          await Deno.mkdir("niFiles", { recursive: true });
+          // // writeJsonSync('haFiles/haConfig.toml', { headers: headers, downLoad: downLoad, help: help }, { spaces: 2 });
+          Deno.writeTextFileSync(
+            "niFiles/niListInfo.txt",
+            `详情列表+${consoleUrls.length}:\n${consoleUrls}\n`,
+          );
+          // console.log("已保存至:prFiles/prListInfo.txt");
+        } catch (error) {
+          console.log(error?.message);
+        }
+
+        console.log("bookFetchEnd:nifetchlist");
+      },
+    )
+
+    .command(
+      "niconfig",
+      "生成配置文niconfig.json(文件位于niFiles/niconfig.toml)\n",
+      (yargs) => {
+        return yargs;
+      },
+      async (argv) => {
+        await Ni.config();
         // //打断顺序
         // urls.sort(() => Math.random() - 0.5)
         // // console.log(urls)
