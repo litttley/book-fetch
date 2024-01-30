@@ -1816,7 +1816,8 @@ if (import.meta.main) {
           command = ["-h", parseInt(maxWidth), "-w", parseInt(maxWidth)];
         }
 
-        await Ni.downLoadImages(urls,['-f','jpg',...command]);
+        await Ni.downLoadImages(urls,command);
+    
 
         console.log("bookFetchEnd:nifetch");
       },
@@ -1896,6 +1897,29 @@ if (import.meta.main) {
         }
 
         console.log("bookFetchEnd:nifetchlist");
+      },
+    )
+
+    .command(
+      "rnifetch",
+      "如果有失败记录(文件位于niFiles/undownLoad.txt)则重新下载,每次操作完成后需要手动删除历史记录,然后再下",
+      (yargs) => {
+        return yargs;
+      },
+      async (argv) => {
+        console.log("bookFetchStart:nifetch");
+        const urls = await Ni.undownLoad();
+        console.log(urls);
+
+        if (urls.length > 0) {
+          let command = urls[0].command;
+          // const NewCommand=[...command,'-H','Referer:https://digital.staatsbibliothek-berlin.de/','-H','User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0']
+          await Ni.downLoadImages(urls, command);
+        } else {
+          console.log("已全完下载!");
+        }
+
+        console.log("bookFetchEnd:bofetch");
       },
     )
 
@@ -2219,6 +2243,23 @@ if (import.meta.main) {
       "book-fetch.exe boconfig ",
       "生成配置文件(位于boFiles/boConfig.toml)\n",
     )
+    .example("日本古典书籍的唯一门户网站:")
+    .example(
+      "book-fetch.exe nifetch -i 100380752 -s 1 -e 2  -w 100 -h 100 ",
+      "bofetch说明:-w(可选) -h(可选)",
+    )
+    .example("book-fetch.exe nifetchlist", "查看列表详情")
+    .example(
+      "book-fetch.exe nifetchdpi -i 100380752",
+      "查看图片分辨率",
+    )
+
+    .example("book-fetch.exe rnifetch", "重试")
+    .example(
+      "book-fetch.exe niconfig ",
+      "生成配置文件(位于niFiles/niConfig.toml)\n",
+    )
+   
     .strictCommands()
     .scriptName("book-fetch.exe")
     .version("v1.0.0")

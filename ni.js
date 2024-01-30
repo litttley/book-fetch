@@ -81,21 +81,16 @@ export const getJsonInfo = async (url) => {
     },
   });
 
-  let html = await response.text();
+  let jsonObj = await response.json();
+  jsonObj.profile[1].formats=['jpg']
+  // console.log(jsonObj)
+  await Deno.writeTextFile(
+    "niFiles/info.json",
+    JSON.stringify( jsonObj)   
+    
+  );
 
-  const lines = html.split("\n");
-  let infoUrl = null;
-  for (const line of lines) {
-    if (line.includes("/info.json")) {
-      infoUrl = line.replace('"info":', "").trim().replaceAll('"', "").replace(
-        ",",
-        "",
-      );
-      break;
-    }
-  }
-
-  return infoUrl;
+  return "info.json";
 };
 
 export const downLoadImages = async (urls, command) => {
@@ -135,7 +130,7 @@ export const downLoadImages = async (urls, command) => {
   for (var i = 0; i < urls.length; i++) {
     try {
       console.log(urls[i].url);
-      // let infoUrl = await getJsonInfo(urls[i].url);
+      let localUrl = await getJsonInfo(urls[i].url);
       // if (!infoUrl) {
       //     throw "获取info.json失败";
       // }
@@ -147,7 +142,7 @@ export const downLoadImages = async (urls, command) => {
       }
 
       const cmd = new Deno.Command(path, {
-        args: [...command ,urls[i].url,`./niFiles/${urls[i].page}.jpg`],
+        args: [...command ,`./niFiles/${localUrl}`,`./niFiles/${urls[i].page}.jpg`],
         stdout: "piped",
         stderr: "inherit",
         // cwd: "niFiles",
@@ -171,6 +166,14 @@ export const downLoadImages = async (urls, command) => {
       );
     }
   }
+
+
+  try {
+    await Deno.remove("./niFiles/info.json" );
+  } catch (error) {
+    
+  }
+ 
 };
 
 export const downLoaddezoomify = async () => {
