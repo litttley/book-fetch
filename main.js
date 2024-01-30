@@ -16,6 +16,7 @@ import * as Pr from "./princeton.js";
 import * as Bo from "./bodleian.js";
 import * as Sh from "./shanben.js";
 import * as Ni from "./ni.js";
+import * as Bn from "./bn.js";
 // Learn more at https://deno.land/manual/examples/module_metadata#concepts
 if (import.meta.main) {
   yargs(Deno.args)
@@ -1943,6 +1944,219 @@ if (import.meta.main) {
     )
 
     .command(
+      "bnfetch",
+      "法国图书馆(https://gallica.bnf.fr/accueil/fr/content/accueil-fr?mode=desktop)",
+      (yargs) => {
+        return yargs
+          .option("url", {
+            type: "string",
+            description: "文件url",
+            alias: "u",
+            demandOption: true,
+          })
+          // .option("no", {
+          //   type: "string",
+          //   description: "文件编号",
+          //   alias: "o",
+          //   demandOption: true,
+          // })
+          .option("start", {
+            type: "string",
+            description: "起始页",
+            alias: "s",
+            demandOption: true,
+          }).option("end", {
+            type: "string",
+            description: "终止页",
+            alias: "e",
+            demandOption: true,
+          })
+          
+          // .option("maxHeight", {
+          //   type: "string",
+          //   description: "文件高度限制(默认下载最大)",
+          //   alias: "h",
+          //   // demandOption: true,
+          // })
+          // .option("maxWidth", {
+          //   type: "string",
+          //   description: "文件宽限制(默认下载最大)",
+          //   alias: "w",
+          //   // demandOption: true,
+          // })
+       
+        ;
+      },
+      async (argv) => {
+        // console.log(argv)
+
+        console.log("bookFetchStart:bnfetch");
+        // Aks()
+        const urls = await Bn.generateUrls(
+          argv.url,
+ 
+          // parseInt(argv.vol),
+          parseInt(argv.start),
+          parseInt(argv.end),
+        );
+
+     
+
+  
+
+    
+ 
+   
+        let consoleText = urls.map((item) => `${item.url} page=${item.page}`)
+          .join("\n");
+        console.log(consoleText);
+    
+
+        await Deno.mkdir("bnFiles", { recursive: true });
+
+        let maxHeight = argv?.maxHeight;
+        let maxWidth = argv?.maxWidth;
+        let command = ["-l"];
+        if (maxHeight) {
+          command = ["-h", parseInt(maxHeight)];
+        }
+        if (maxWidth) {
+          command = ["-w", parseInt(maxWidth)];
+        }
+
+        if (maxHeight && maxWidth) {
+          command = ["-h", parseInt(maxWidth), "-w", parseInt(maxWidth)];
+        }
+
+        await Bn.downLoadImages(urls,command);
+    
+
+        console.log("bookFetchEnd:bnfetch");
+      },
+    )
+
+    .command(
+      "bnfetchlist",
+      "查看下载详情",
+      (yargs) => {
+        return yargs.option("url", {
+          type: "string",
+          description: "文件url",
+          alias: "u",
+          demandOption: true,
+        });
+      },
+      async (argv) => {
+        // console.log(argv)
+        console.log("bookFetchStart:bnfetchlist");
+ 
+        try {
+
+
+          const urls= await Bn.viewInfo(argv.url);
+
+   
+
+
+
+
+          const consoleUrls = urls.map((item) => {
+            return `${item.url}   page=${item.page}`;
+          }).join("\n");
+          console.log(`详情列表+${urls.length}`);
+          console.log(consoleUrls);
+
+
+          // const consoleImageUrls = imageUrls.map((item) => {
+          //   return `${item.url}   page=${item.page}`;
+          // }).join("\n");
+          // console.log(`图片详情列表+${consoleImageUrls.length}`);
+          // console.log(consoleImageUrls);
+
+
+          await Deno.mkdir("bnFiles", { recursive: true });
+          // // writeJsonSync('haFiles/haConfig.toml', { headers: headers, downLoad: downLoad, help: help }, { spaces: 2 });
+          Deno.writeTextFileSync(
+            "bnFiles/niListInfo.txt",
+            `详情列表+${consoleUrls.length}:\n${consoleUrls}\n`,
+          );
+          // console.log("已保存至:prFiles/prListInfo.txt");
+        } catch (error) {
+          console.log(error?.message);
+        }
+
+        console.log("bookFetchEnd:bnfetchlist");
+      },
+    )
+
+    .command(
+      "rbnfetch",
+      "如果有失败记录(文件位于bnFiles/undownLoad.txt)则重新下载,每次操作完成后需要手动删除历史记录,然后再下",
+      (yargs) => {
+        return yargs;
+      },
+      async (argv) => {
+        console.log("bookFetchStart:bnfetch");
+        const urls = await Bn.undownLoad();
+        console.log(urls);
+
+        if (urls.length > 0) {
+          let command = urls[0].command;
+          // const NewCommand=[...command,'-H','Referer:https://digital.staatsbibliothek-berlin.de/','-H','User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0']
+          await Bn.downLoadImages(urls, command);
+        } else {
+          console.log("已全完下载!");
+        }
+
+        console.log("bookFetchEnd:bnfetch");
+      },
+    )
+
+    // .command(
+    //   "bnfetchdpi",
+    //   "查看图片分辨率详情",
+    //   (yargs) => {
+    //     return yargs.option("url", {
+    //       type: "string",
+    //       description: "文件url",
+    //       alias: "u",
+    //       demandOption: true,
+    //     });
+    //   },
+    //   async (argv) => {
+    //     // console.log(argv)
+    //     console.log("bookFetchStart:bnfetchdpi");
+
+    //     try {
+    //       await Bn.viewDpi(argv.url);
+    //     } catch (error) {
+    //       console.log(error?.message);
+    //     }
+
+    //     console.log("bookFetchEnd:bnfetchdpi");
+    //   },
+    // )
+
+    .command(
+      "bnconfig",
+      "生成配置文bnconfig.json(文件位于bnFiles/bnconfig.toml)\n",
+      (yargs) => {
+        return yargs;
+      },
+      async (argv) => {
+        await Bn.config();
+        // //打断顺序
+        // urls.sort(() => Math.random() - 0.5)
+        // // console.log(urls)
+        // if (urls.length > 0) {
+        //   await Hathitrust.downLoadImages(urls)
+        // } else {
+        //   console.log('已全完下载!')
+        // }
+      },
+    )
+
+    .command(
       "actionfetch",
       "运行后端服务",
       (yargs) => {
@@ -2258,6 +2472,24 @@ if (import.meta.main) {
     .example(
       "book-fetch.exe niconfig ",
       "生成配置文件(位于niFiles/niConfig.toml)\n",
+    )
+
+
+    .example("法国图书馆:")
+    .example(
+      "book-fetch.exe bnfetch -u https://gallica.bnf.fr/ark:/12148/btv1b52519915t -s 1 -e 1",
+      "bofetch说明: ",
+    )
+    .example("book-fetch.exe bnfetchlist", "查看列表详情")
+    // .example(
+    //   "book-fetch.exe nifetchdpi -i 100380752",
+    //   "查看图片分辨率",
+    // )
+
+    .example("book-fetch.exe rbnfetch", "重试")
+    .example(
+      "book-fetch.exe bnconfig ",
+      "生成配置文件(位于bnFiles/bnConfig.toml)\n",
     )
    
     .strictCommands()
