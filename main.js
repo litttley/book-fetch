@@ -17,6 +17,8 @@ import * as Bo from "./bodleian.js";
 import * as Sh from "./shanben.js";
 import * as Ni from "./ni.js";
 import * as Bn from "./bn.js";
+import * as An from "./an.js";
+import * as Nla from "./nla.js";
 // Learn more at https://deno.land/manual/examples/module_metadata#concepts
 if (import.meta.main) {
   yargs(Deno.args)
@@ -2156,6 +2158,382 @@ if (import.meta.main) {
       },
     )
 
+
+    //https://openresearch-repository.anu.edu.au/handle/1885/9199
+
+    .command(
+      "anfetch",
+      "澳大利亚国立大学图书馆(https://openresearch-repository.anu.edu.au/handle/1885/9199)",
+      (yargs) => {
+        return yargs
+          .option("url", {
+            type: "string",
+            description: "文件url",
+            alias: "u",
+            demandOption: true,
+          })
+          // .option("no", {
+          //   type: "string",
+          //   description: "文件编号",
+          //   alias: "o",
+          //   demandOption: true,
+          // })
+          .option("start", {
+            type: "string",
+            description: "起始页",
+            alias: "s",
+            demandOption: true,
+          }).option("end", {
+            type: "string",
+            description: "终止页",
+            alias: "e",
+            demandOption: true,
+          })
+          
+          .option("type", {
+            type: "string",
+            description: "type[pdf,tif]默认pdf",
+            alias: "t",
+            // demandOption: true,
+          })
+          // .option("maxWidth", {
+          //   type: "string",
+          //   description: "文件宽限制(默认下载最大)",
+          //   alias: "w",
+          //   // demandOption: true,
+          // })
+       
+        ;
+      },
+      async (argv) => {
+        // console.log(argv)
+
+        console.log("bookFetchStart:anfetch");
+        let downType='pdf'
+        if(argv.type=='tif'){
+          downType=tif
+        }
+        const urls = await An.generateUrls(
+          argv.url,
+ 
+          // parseInt(argv.vol),
+          parseInt(argv.start),
+          parseInt(argv.end),
+          downType
+        );
+
+     
+
+  
+
+    
+ 
+   
+        let consoleText = urls.map((item) => `${item.url} page=${item.page}`)
+          .join("\n");
+        console.log(consoleText);
+    
+
+        await Deno.mkdir("anFiles", { recursive: true });
+
+        // let maxHeight = argv?.maxHeight;
+        // let maxWidth = argv?.maxWidth;
+        // let command = ["-l"];
+        // if (maxHeight) {
+        //   command = ["-h", parseInt(maxHeight)];
+        // }
+        // if (maxWidth) {
+        //   command = ["-w", parseInt(maxWidth)];
+        // }
+
+        // if (maxHeight && maxWidth) {
+        //   command = ["-h", parseInt(maxWidth), "-w", parseInt(maxWidth)];
+        // }
+
+        await An.downLoadImages(urls);
+    
+
+        console.log("bookFetchEnd:anfetch");
+      },
+    )
+
+
+    .command(
+      "anfetchlist",
+      "查看下载详情",
+      (yargs) => {
+        return yargs.option("url", {
+          type: "string",
+          description: "文件url",
+          alias: "u",
+          demandOption: true,
+        });
+      },
+      async (argv) => {
+        // console.log(argv)
+        console.log("bookFetchStart:anfetchlist");
+ 
+        try {
+
+
+          const {pdfUrls,tifUrls}= await An.viewInfo(argv.url);
+
+   
+
+
+
+
+          const consolePdfUrls = pdfUrls.map((item) => {
+            return `${item.url}   page=${item.page}`;
+          }).join("\n");
+          console.log(`pdf详情列表+${pdfUrls.length}`);
+          console.log(consolePdfUrls);
+
+
+          const consoleTifUrls = tifUrls.map((item) => {
+            return `${item.url}   page=${item.page}`;
+          }).join("\n");
+          console.log(`图片详情列表+${tifUrls.length}`);
+          console.log(consoleTifUrls);
+
+
+          await Deno.mkdir("anFiles", { recursive: true });
+          // // writeJsonSync('haFiles/haConfig.toml', { headers: headers, downLoad: downLoad, help: help }, { spaces: 2 });
+          Deno.writeTextFileSync(
+            "anFiles/anListInfo.txt",
+            `pdf详情列表+${pdfUrls.length}:\n${consolePdfUrls}\n\ntif详情列表+${tifUrls.length}:\n${consoleTifUrls}`,
+          );
+          // console.log("已保存至:prFiles/prListInfo.txt");
+        } catch (error) {
+          console.log(error?.message);
+        }
+
+        console.log("bookFetchEnd:anfetchlist");
+      },
+    )
+
+    .command(
+      "ranfetch",
+      "如果有失败记录(文件位于anFiles/undownLoad.txt)则重新下载,每次操作完成后需要手动删除历史记录,然后再下",
+      (yargs) => {
+        return yargs;
+      },
+      async (argv) => {
+        console.log("bookFetchStart:anfetch");
+        const urls = await An.undownLoad();
+        console.log(urls);
+
+        if (urls.length > 0) {
+       
+          // const NewCommand=[...command,'-H','Referer:https://digital.staatsbibliothek-berlin.de/','-H','User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0']
+          await An.downLoadImages(urls);
+        } else {
+          console.log("已全完下载!");
+        }
+
+        console.log("bookFetchEnd:bnfetch");
+      },
+    )
+
+    .command(
+      "anconfig",
+      "生成配置文anconfig.json(文件位于anFiles/anconfig.toml)\n",
+      (yargs) => {
+        return yargs;
+      },
+      async (argv) => {
+        await An.config();
+        // //打断顺序
+        // urls.sort(() => Math.random() - 0.5)
+        // // console.log(urls)
+        // if (urls.length > 0) {
+        //   await Hathitrust.downLoadImages(urls)
+        // } else {
+        //   console.log('已全完下载!')
+        // }
+      },
+    )
+
+
+    .command(
+      "nlafetch",
+      "澳大利亚国家图书馆(https://catalogue.nla.gov.au/catalog?f%5Baccess_ssim%5D%5B%5D=National+Library+%28digitised+item%29&f%5Blanguage_ssim%5D%5B%5D=Chinese&search_field=subject)",
+      (yargs) => {
+        return yargs
+          .option("url", {
+            type: "string",
+            description: "文件url",
+            alias: "u",
+            demandOption: true,
+          })
+        
+          .option("start", {
+            type: "string",
+            description: "起始页",
+            alias: "s",
+            demandOption: true,
+          }).option("end", {
+            type: "string",
+            description: "终止页",
+            alias: "e",
+            demandOption: true,
+          })
+          
+          .option("maxWidth", {
+            type: "string",
+            description: "文件宽限制(默认下载最大)",
+            alias: "w",
+            // demandOption: true,
+          })
+          // .option("maxHeight", {
+          //   type: "string",
+          //   description: "文件宽限制(默认下载最大)",
+          //   alias: "w",
+          //   // demandOption: true,
+          // })
+       
+        ;
+      },
+      async (argv) => {
+        // console.log(argv)
+
+        console.log("bookFetchStart:nlafetch");
+      
+        let maxWidth = argv?.maxWidth;
+        if(maxWidth){
+          maxWidth=   parseInt(maxWidth)
+        }else{
+          maxWidth=-1
+        }
+      
+        const urls = await Nla.generateUrls(
+          argv.url,
+ 
+          // parseInt(argv.vol),
+          parseInt(argv.start),
+          parseInt(argv.end),
+          maxWidth
+          
+        );
+
+     
+
+  
+
+    
+ 
+   
+        let consoleText = urls.map((item) => `${item.url} page=${item.page}`)
+          .join("\n");
+        console.log(consoleText);
+    
+
+        await Deno.mkdir("nlaFiles", { recursive: true });
+
+         
+
+        await Nla.downLoadImages(urls);
+    
+
+        console.log("bookFetchEnd:nlafetch");
+      },
+    )
+    .command(
+      "rnlafetch",
+      "如果有失败记录(文件位于nlaFiles/undownLoad.txt)则重新下载,每次操作完成后需要手动删除历史记录,然后再下",
+      (yargs) => {
+        return yargs;
+      },
+      async (argv) => {
+        console.log("bookFetchStart:nlgfetch");
+        const urls = await Nla.undownLoad();
+        console.log(urls);
+
+        if (urls.length > 0) {
+       
+          // const NewCommand=[...command,'-H','Referer:https://digital.staatsbibliothek-berlin.de/','-H','User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0']
+          await Nla.downLoadImages(urls);
+        } else {
+          console.log("已全完下载!");
+        }
+
+        console.log("bookFetchEnd:nlgfetch");
+      },
+    )
+
+    .command(
+      "nlafetchlist",
+      "查看下载详情",
+      (yargs) => {
+        return yargs.option("url", {
+          type: "string",
+          description: "文件url",
+          alias: "u",
+          demandOption: true,
+        });
+      },
+      async (argv) => {
+        // console.log(argv)
+        console.log("bookFetchStart:nlafetchlist");
+ 
+        try {
+
+
+          const urls= await Nla.viewInfo(argv.url);
+
+   
+
+
+
+
+          const consoleUrls = urls.map((item) => {
+            return `${item.url}   page=${item.page} maxWidth=${item.maxWidth}  maxHeight=${item.maxHeight}`;
+          }).join("\n");
+          console.log(`详情列表+${urls.length}`);
+          console.log(consoleUrls);
+
+
+          // const consoleTifUrls = tifUrls.map((item) => {
+          //   return `${item.url}   page=${item.page}`;
+          // }).join("\n");
+          // console.log(`图片详情列表+${tifUrls.length}`);
+          // console.log(consoleTifUrls);
+
+
+          await Deno.mkdir("nlaFiles", { recursive: true });
+          // // writeJsonSync('haFiles/haConfig.toml', { headers: headers, downLoad: downLoad, help: help }, { spaces: 2 });
+          Deno.writeTextFileSync(
+            "nlaFiles/nlaListInfo.txt",
+            `详情列表+${urls.length}:\n${consoleUrls}\n`,
+          );
+          // console.log("已保存至:prFiles/prListInfo.txt");
+        } catch (error) {
+          console.log(error?.message);
+        }
+
+        console.log("bookFetchEnd:nlafetchlist");
+      },
+    )
+
+    .command(
+      "nlaconfig",
+      "生成配置文nlaconfig.json(文件位于nlaFiles/nlaconfig.toml)\n",
+      (yargs) => {
+        return yargs;
+      },
+      async (argv) => {
+        await Nla.config();
+        // //打断顺序
+        // urls.sort(() => Math.random() - 0.5)
+        // // console.log(urls)
+        // if (urls.length > 0) {
+        //   await Hathitrust.downLoadImages(urls)
+        // } else {
+        //   console.log('已全完下载!')
+        // }
+      },
+    )
+
     .command(
       "actionfetch",
       "运行后端服务",
@@ -2468,7 +2846,14 @@ if (import.meta.main) {
       "查看图片分辨率",
     )
 
+
+   
     .example("book-fetch.exe rnifetch", "重试")
+
+
+    
+
+  
     .example(
       "book-fetch.exe niconfig ",
       "生成配置文件(位于niFiles/niConfig.toml)\n",
@@ -2491,8 +2876,47 @@ if (import.meta.main) {
       "book-fetch.exe bnconfig ",
       "生成配置文件(位于bnFiles/bnConfig.toml)\n",
     )
-   
-    .strictCommands()
+
+
+  
+    .example("澳大利亚国立大学图书馆:")
+    .example(
+      "book-fetch.exe anfetch -u https://openresearch-repository.anu.edu.au/handle/1885/205926 -s 1 -e 1",
+      "bofetch说明: ",
+    )
+    .example("book-fetch.exe anfetchlist", "查看列表详情")
+    // .example(
+    //   "book-fetch.exe nifetchdpi -i 100380752",
+    //   "查看图片分辨率",
+    // )
+
+    .example("book-fetch.exe ranfetch", "重试")
+    .example(
+      "book-fetch.exe anconfig ",
+      "生成配置文件(位于anFiles/anConfig.toml)\n",
+    )
+
+
+    
+
+     .example("澳大利亚国家图书馆:")
+     .example(
+       "book-fetch.exe nlafetch -u https://catalogue.nla.gov.au/catalog/1920597 -s 1 -e 1 -w 100",
+       "bofetch说明: ",
+     )
+     .example("book-fetch.exe nlafetchlist", "查看列表详情")
+     // .example(
+     //   "book-fetch.exe nifetchdpi -i 100380752",
+     //   "查看图片分辨率",
+     // )
+ 
+     .example("book-fetch.exe rnlafetch", "重试")
+     .example(
+       "book-fetch.exe nlaconfig ",
+       "生成配置文件(位于nlaFiles/nlaConfig.toml)\n",
+     )
+
+     .strictCommands()
     .scriptName("book-fetch.exe")
     .version("v1.0.0")
     .epilog("copyright 2023 book-fetch")
