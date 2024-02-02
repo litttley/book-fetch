@@ -464,7 +464,7 @@ export const viewDpi = async (id) => {
 
     if (urls.length > 0) {
         const cmd = new Deno.Command(path, {
-            args: [urls[0].url, "--compression"],
+            args: [urls[0].url],
             stdout: "piped",
             stderr: "inherit",
             // cwd: "nlaFiles",

@@ -570,7 +570,7 @@ export const viewDpi = async (id) => {
 
   if (urls.length > 0) {
     const cmd = new Deno.Command(path, {
-      args: [infoUrl, "--compression"],
+      args: [infoUrl],
       stdout: "piped",
       stderr: "inherit",
       // cwd: "loFiles",

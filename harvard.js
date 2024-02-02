@@ -364,8 +364,9 @@ export const viewDpi = async (id) => {
   }
 
   if (urls.length > 0) {
+    console.log(`dezoomify-rs.exe ${urls[0].url}`)
     const cmd = new Deno.Command(path, {
-      args: [urls[0].url, "--compression"],
+      args: [urls[0].url],
       stdout: "piped",
       stderr: "inherit",
       cwd: "harFiles",
