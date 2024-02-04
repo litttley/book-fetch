@@ -2211,7 +2211,7 @@ if (import.meta.main) {
         console.log("bookFetchStart:anfetch");
         let downType='pdf'
         if(argv.type=='tif'){
-          downType=tif
+          downType=argv.tif
         }
         const urls = await An.generateUrls(
           argv.url,

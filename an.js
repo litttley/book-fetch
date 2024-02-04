@@ -173,7 +173,19 @@ export const downLoadImages = async (urls) => {
       });
       let resHeaders = response.headers;
       // console.log(resHeaders)
+      let contentType = resHeaders.get("content-type");
+      let mime='pdf'
+      if(contentType=='application/pdf'){
+        mime='pdf'
+      }else if(contentType=='image/tiff'){
+        mine='tif'
+      }
       let fileName = resHeaders.get("content-disposition");
+ 
+      if(!fileName){
+        fileName='attachment;filename="'+`${urls[i].page}.${mime}`+'"'
+      }
+     
       let contentDisposition = ContentDisposition.parse(fileName);
       let finalFileName = "";
       console.log(contentDisposition?.parameters?.filename);
