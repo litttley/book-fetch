@@ -111,7 +111,7 @@ export const getCookie = async (url) => {
   });
 
   let resHeaders = response.headers;
-      console.log(resHeaders)
+      // console.log(resHeaders)
       let cookie = resHeaders.get("set-cookie");
     return  cookie.split(';')[0]
  
