@@ -148,7 +148,7 @@ export const downLoadImages = async (urls) => {
     throw new Error('下载列表为空')
  }
  const cookie = await getCookie(urls[0].url)
- console.log(cookie)
+//  console.log(cookie)
 
   for (var i = 0; i < urls.length; i++) {
     try {
@@ -172,7 +172,7 @@ export const downLoadImages = async (urls) => {
         },
       });
       let resHeaders = response.headers;
-      console.log(resHeaders)
+      // console.log(resHeaders)
       let fileName = resHeaders.get("content-disposition");
       let contentDisposition = ContentDisposition.parse(fileName);
       let finalFileName = "";
