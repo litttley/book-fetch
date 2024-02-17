@@ -19,6 +19,7 @@ import * as Ni from "./ni.js";
 import * as Bn from "./bn.js";
 import * as An from "./an.js";
 import * as Nla from "./nla.js";
+import * as Kan from "./kansai.js";
 // Learn more at https://deno.land/manual/examples/module_metadata#concepts
 if (import.meta.main) {
   yargs(Deno.args)
@@ -2213,7 +2214,7 @@ if (import.meta.main) {
         if(argv.type=='tif'){
           downType=argv.tif
         }
-        const urls = await An.generateUrls(
+        const urls = await Kan.generateUrls(
           argv.url,
  
           // parseInt(argv.vol),
@@ -2309,6 +2310,31 @@ if (import.meta.main) {
         }
 
         console.log("bookFetchEnd:anfetchlist");
+      },
+    )
+
+      .command(
+      "nifetchdpi",
+      "查看图片分辨率详情",
+      (yargs) => {
+        return yargs.option("id", {
+          type: "string",
+          description: "文件id",
+          alias: "i",
+          demandOption: true,
+        });
+      },
+      async (argv) => {
+        // console.log(argv)
+        console.log("bookFetchStart:nifetchdpi");
+
+        try {
+          await Ni.viewDpi(argv.id);
+        } catch (error) {
+          console.log(error?.message);
+        }
+
+        console.log("bookFetchEnd:nifetchdpi");
       },
     )
 
@@ -2534,6 +2560,218 @@ if (import.meta.main) {
       },
     )
 
+    .command(
+      "kafetch",
+      "日本关西大学(https://www.iiif.ku-orcas.kansai-u.ac.jp/open_platform/search?kywd=&title=&creator=&spatial=&temporal=&language=75157&type%5Bdb_books%5D=db_books&type%5Bhakuen_bunko%5D=hakuen_bunko&type%5Bosaka_gadan%5D=osaka_gadan&type%5Byinpu%5D=yinpu&f%5B0%5D=temporal%3A1901&page=1)",
+      (yargs) => {
+        return yargs
+          .option("id", {
+            type: "string",
+            description: "文件id",
+            alias: "i",
+            demandOption: true,
+          })
+        
+          .option("start", {
+            type: "string",
+            description: "起始页",
+            alias: "s",
+            demandOption: true,
+          }).option("end", {
+            type: "string",
+            description: "终止页",
+            alias: "e",
+            demandOption: true,
+          })
+          
+          .option("maxWidth", {
+            type: "string",
+            description: "文件宽限制(默认下载最大)",
+            alias: "w",
+            // demandOption: true,
+          })
+          .option("maxHeight", {
+            type: "string",
+            description: "文件宽限制(默认下载最大)",
+            alias: "w",
+            // demandOption: true,
+          })
+       
+        ;
+      },
+      async (argv) => {
+        // console.log(argv)
+
+        console.log("bookFetchStart:kafetch");
+      
+        
+
+    
+ 
+        const urls = await Kan.generateUrls(
+          argv.id,
+ 
+          // parseInt(argv.vol),
+          parseInt(argv.start),
+          parseInt(argv.end),
+        );
+
+     
+
+  
+
+    
+ 
+   
+        let consoleText = urls.map((item) => `${item.url} page=${item.page}`)
+          .join("\n");
+        console.log(consoleText);
+    
+
+        await Deno.mkdir("kaFiles", { recursive: true });
+
+        let maxHeight = argv?.maxHeight;
+        let maxWidth = argv?.maxWidth;
+        let command = ["-l"];
+        if (maxHeight) {
+          command = ["-h", parseInt(maxHeight)];
+        }
+        if (maxWidth) {
+          command = ["-w", parseInt(maxWidth)];
+        }
+
+        if (maxHeight && maxWidth) {
+          command = ["-h", parseInt(maxWidth), "-w", parseInt(maxWidth)];
+        }
+
+        await Kan.downLoadImages(urls,command);
+    
+
+ 
+
+        console.log("bookFetchEnd:kafetch");
+      },
+    )
+
+
+    .command(
+      "kafetchlist",
+      "查看下载详情",
+      (yargs) => {
+        return yargs.option("id", {
+          type: "string",
+          description: "文件id",
+          alias: "i",
+          demandOption: true,
+        });
+      },
+      async (argv) => {
+        // console.log(argv)
+        console.log("bookFetchStart:kafetchlist");
+ 
+        try {
+
+
+          const urls= await Kan.viewInfo(argv.id);
+
+
+
+
+
+
+          const consoleUrls = urls.map((item) => {
+            return `${item.url}   page=${item.page}`;
+          }).join("\n");
+          console.log(`详情列表+${urls.length}`);
+          console.log(consoleUrls);
+
+
+          // const consoleImageUrls = imageUrls.map((item) => {
+          //   return `${item.url}   page=${item.page}`;
+          // }).join("\n");
+          // console.log(`图片详情列表+${consoleImageUrls.length}`);
+          // console.log(consoleImageUrls);
+
+
+          await Deno.mkdir("kaFiles", { recursive: true });
+          // // writeJsonSync('haFiles/haConfig.toml', { headers: headers, downLoad: downLoad, help: help }, { spaces: 2 });
+          Deno.writeTextFileSync(
+            "kaFiles/kaListInfo.txt",
+            `详情列表+${consoleUrls.length}:\n${consoleUrls}\n`,
+          );
+          // console.log("已保存至:prFiles/prListInfo.txt");
+        } catch (error) {
+          console.log(error?.message);
+        }
+
+        console.log("bookFetchEnd:kafetchlist");
+      },
+    )
+    .command(
+      "kafetchdpi",
+      "查看图片分辨率详情",
+      (yargs) => {
+        return yargs.option("id", {
+          type: "string",
+          description: "文件id",
+          alias: "i",
+          demandOption: true,
+        });
+      },
+      async (argv) => {
+        // console.log(argv)
+        console.log("bookFetchStart:kafetchdpi");
+
+        try {
+          await Kan.viewDpi(argv.id);
+        } catch (error) {
+          console.log(error?.message);
+        }
+
+        console.log("bookFetchEnd:kafetchdpi");
+      },
+    )
+
+    .command(
+      "rkafetch",
+      "如果有失败记录(文件位于kaFiles/undownLoad.txt)则重新下载,每次操作完成后需要手动删除历史记录,然后再下",
+      (yargs) => {
+        return yargs;
+      },
+      async (argv) => {
+        console.log("bookFetchStart:kafetch");
+        const urls = await Kan.undownLoad();
+        console.log(urls);
+
+        if (urls.length > 0) {
+          let command = urls[0].command;
+          // const NewCommand=[...command,'-H','Referer:https://digital.staatsbibliothek-berlin.de/','-H','User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0']
+          await Kan.downLoadImages(urls, command);
+        } else {
+          console.log("已全完下载!");
+        }
+
+        console.log("bookFetchEnd:kafetch");
+      },
+    )
+    .command(
+      "kaconfig",
+      "生成配置文kaconfig.json(文件位于kaFiles/kaconfig.toml)\n",
+      (yargs) => {
+        return yargs;
+      },
+      async (argv) => {
+        await Kan.config();
+        // //打断顺序
+        // urls.sort(() => Math.random() - 0.5)
+        // // console.log(urls)
+        // if (urls.length > 0) {
+        //   await Hathitrust.downLoadImages(urls)
+        // } else {
+        //   console.log('已全完下载!')
+        // }
+      },
+    )
     .command(
       "actionfetch",
       "运行后端服务",
@@ -2914,6 +3152,25 @@ if (import.meta.main) {
      .example(
        "book-fetch.exe nlaconfig ",
        "生成配置文件(位于nlaFiles/nlaConfig.toml)\n",
+     )
+
+
+     
+     .example("日本关西大学")
+     .example(
+       "book-fetch.exe kafetch -i 1136 -s 1 -e 1 -w 100",
+       "bofetch说明: ",
+     )
+     .example("book-fetch.exe kafetchlist -i 1136", "查看列表详情")
+     .example(
+       "book-fetch.exe kafetchdpi -i 1136",
+       "查看图片分辨率",
+     )
+ 
+     .example("book-fetch.exe rkafetch", "重试")
+     .example(
+       "book-fetch.exe kaconfig ",
+       "生成配置文件(位于kaFiles/kaConfig.toml)\n",
      )
 
      .strictCommands()
