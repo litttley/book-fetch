@@ -31,6 +31,7 @@ const generateUrlsStep2 = async (infoUrls) => {
     let vol = 1;
     let page = 1;
     for await (const response of promises) {
+      let  volPage =1
       let status = response.status;
 
       const html = await response.text();
@@ -54,8 +55,9 @@ const generateUrlsStep2 = async (infoUrls) => {
         // console.log(i + 1)
         let url = `${templateHref}?sp=${i + 1}&st=image`;
         console.log(`${url} page=${page}`);
-        urls.push({ url: url, vol: vol, page: page });
+        urls.push({ url: url, vol: vol, volPage:volPage,page: page });
         page++;
+        volPage++
       }
 
       vol++;
@@ -469,6 +471,60 @@ async function checkFileExists(path) {
 
     return false;
   }
+}
+export const viewInfo = async (fileId) => {
+
+  try {
+    const response = await fetch(`https://www.loc.gov/item/${fileId}/`, {
+      method: "GET",
+      // responseType: 'stream'
+      headers: {
+        "Accept":
+          "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+
+        // "Host": "ttps://ostasien.digitale-sammlungen.de/",
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36 Edg/118.0.2088.76",
+        //   "Cookie": `${config?.headers?.Cookie}`,
+      },
+    });
+
+    const html = await response.text();
+    // console.log(html)
+
+    const doc = new DOMParser().parseFromString(
+      `
+           ${html}
+          `,
+      "text/html",
+    );
+    const elements = doc.querySelectorAll(
+      ".link-resource",
+    );
+
+    let volArr = [];
+    let i = 0;
+    for (const element of elements) {
+      const href = element.getAttribute("href");
+
+      volArr.push({ url: href, vol: i + 1 });
+      i++;
+    }
+
+    const tmpArr = await generateUrlsStep2(volArr);
+  
+
+    console.log(tmpArr);
+
+    return tmpArr;
+  } catch (error) {
+    console.log(error);
+    return [];
+  }
+ 
+   
 }
 export const config = async () => {
   try {
