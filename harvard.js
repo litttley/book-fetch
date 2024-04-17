@@ -85,6 +85,52 @@ export const generateUrls = async (url, pageStart, pageEnd) => {
   }
 };
 
+export const generateUrlsByManifest = async (url, pageStart, pageEnd) => {
+  try {
+   
+   
+ 
+    const response2 = await fetch(url, {
+      method: "GET",
+      // responseType: 'stream'
+      headers: {
+        "Accept": "application/json, text/javascript, */*; q=0.01",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+
+        // "Host": "ttps://ostasien.digitale-sammlungen.de/",
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36 Edg/118.0.2088.76",
+        //   "Cookie": `${config?.headers?.Cookie}`,
+      },
+    });
+    let manifestObj = await response2.json();
+    const canvases = manifestObj?.sequences[0].canvases;
+    // console.log(canvases)
+    let tmpArr = [];
+    for (const canva of canvases) {
+      let value = canva.images[0].resource.service["@id"];
+
+      tmpArr.push(`${value}/info.json`);
+    }
+
+    let urls = tmpArr.map((item, index) => {
+      return { url: item, page: index + 1 };
+    }).filter((item, index) => {
+      const page = item.page;
+      if (page >= pageStart && page <= pageEnd) {
+        return true;
+      } else {
+        return false;
+      }
+    });
+
+    return urls;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 export const downLoadImages = async (urls, command) => {
   let config = null;
 
@@ -354,6 +400,37 @@ export const undownLoad = async () => {
 
 export const viewDpi = async (id) => {
   const urls = await generateUrls(id, 1, 1);
+
+  const platform = os.platform();
+
+  let path = "./dezoomify-rs.exe";
+
+  if (platform !== "windows") {
+    path = "./dezoomify-rs";
+  }
+
+  if (urls.length > 0) {
+    console.log(`dezoomify-rs.exe ${urls[0].url}`)
+    const cmd = new Deno.Command(path, {
+      args: [urls[0].url],
+      stdout: "piped",
+      stderr: "inherit",
+      cwd: "harFiles",
+    });
+    const output = await cmd.output();
+    const logs = new TextDecoder().decode(output.stdout).trim();
+    console.log(logs);
+    if (!output.success) {
+      throw new Error("获取图片分辨率异常");
+    }
+  } else {
+    throw new Error("获取图片分辨率异常");
+  }
+};
+
+
+export const viewDpiManifest = async (id) => {
+  const urls = await generateUrlsByManifest(id, 1, 1);
 
   const platform = os.platform();
 

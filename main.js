@@ -1021,6 +1021,12 @@ if (import.meta.main) {
             alias: "u",
             demandOption: true,
           })
+          .option("type", {
+            type: "string",
+            description: "0:使用地址url下载1:使用manifest url",
+            alias: "t",
+            // demandOption: false,
+          })
           .option("start", {
             type: "string",
             description: "起始页",
@@ -1050,14 +1056,29 @@ if (import.meta.main) {
 
         console.log("bookFetchStart:harfetch");
         // Aks()
-        const urls = await Har.generateUrls(
-          argv.url,
-          // parseInt(argv.vol),
-          parseInt(argv.start),
-          parseInt(argv.end),
-        );
+        let urls = null
+        let type = argv?.type;
 
-        // console.log(urls)
+        if (type == '1') {
+
+          urls = await Har.generateUrlsByManifest(
+            argv.url,
+            // parseInt(argv.vol),
+            parseInt(argv.start),
+            parseInt(argv.end),
+          );
+        } else {
+
+          urls = await Har.generateUrls(
+            argv.url,
+            // parseInt(argv.vol),
+            parseInt(argv.start),
+            parseInt(argv.end),
+          );
+        }
+
+
+        console.log(urls)
 
         let maxHeight = argv?.maxHeight;
         let maxWidth = argv?.maxWidth;
@@ -1120,7 +1141,14 @@ if (import.meta.main) {
           description: "文件id",
           alias: "u",
           demandOption: true,
-        });
+        })
+          .option("type", {
+            type: "string",
+            description: "0:使用地址栏url下载1:使用manifest url",
+            alias: "t",
+            demandOption: true,
+          })
+          ;
       },
       async (argv) => {
         // console.log(argv)
@@ -1133,7 +1161,15 @@ if (import.meta.main) {
         // );
 
         try {
-          await Har.viewDpi(argv.url);
+
+          let type = argv?.type
+
+          if (type == '1') {
+            await Har.viewDpiManifest(argv.url);
+          } else {
+            await Har.viewDpi(argv.url);
+          }
+
         } catch (error) {
           console.log(error?.message);
         }

@@ -3,12 +3,17 @@
   "packages": {
     "specifiers": {
       "npm:@tinyhttp/content-disposition": "npm:@tinyhttp/content-disposition@2.2.0",
+      "npm:@types/node": "npm:@types/node@18.16.19",
       "npm:moment": "npm:moment@2.29.4",
       "npm:yargonaut": "npm:yargonaut@1.1.4"
     },
     "npm": {
       "@tinyhttp/content-disposition@2.2.0": {
         "integrity": "sha512-w1dJaSAtcCinOlT/YQg35RnFCOBbCHBGDVhH4yLoiJVtecRAJ2cYMf5HP+UhfbXURa38GC8fkRXO0vODDTjmeg==",
+        "dependencies": {}
+      },
+      "@types/node@18.16.19": {
+        "integrity": "sha512-IXl7o+R9iti9eBW4Wg2hx1xQDig183jj7YLn8F7udNceyfkbn1ZxmzZXuak20gR40D7pIkIY1kYGx5VIGbaHKA==",
         "dependencies": {}
       },
       "ansi-regex@2.1.1": {
