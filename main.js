@@ -185,6 +185,129 @@ if (import.meta.main) {
     )
 
     .command(
+      "nlbookindex",
+      "下载old book类书目，书目下载保存到nlFiles/bookinde.md文件",
+      (yargs) => {
+        return yargs.option("start", {
+          type: "string",
+          description: "起始页",
+          alias: "s",
+          demandOption: true,
+        }).option("end", {
+          type: "string",
+          description: "结束页",
+          alias: "e",
+          demandOption: true,
+        });
+
+
+
+        ;
+      },
+      async (argv) => {
+
+        let start = parseInt(argv.start)
+        let end = parseInt(argv.end) + 1
+
+        let bookindexs = []
+        for (let i = start; i < end; i++) {
+
+          try {
+            let result = await Nl.downIndex(i);
+
+            bookindexs.push({ page: i, result })
+            // console.log(bookindexs)
+            // break
+          } catch (error) {
+            console.log(error)
+            await Deno.writeTextFile(
+              "nlFiles/indexundownLoad.txt",
+              JSON.stringify({
+                pageNum: i,
+             
+              }) + "\n",
+              { append: true },
+            );
+          }
+
+
+
+        }
+
+        let markdown = ''
+
+        let index=1
+        for (const item of bookindexs) {
+          let rsults = item.result
+
+          for (const result of rsults) {
+            markdown += `${index}. ${result.text}\n\n`
+            markdown+=`${result.comment1} ${result.comment2} ${result.comment3} ${result.comment4}\n\n`
+            index++
+          }
+
+
+
+        }
+        await Deno.mkdir("nlFiles", { recursive: true });
+        Deno.writeTextFile(`./nlFiles/bookIndex${start}-${end}.md`,markdown)
+
+      },
+    )
+
+    .command(
+      "rnlbookindex",
+      "如果有失败记录(文件位于nlFiles/indexundownLoad.txt)则重新下载,每次操作完成后需要手动删除历史记录,然后再下",
+      (yargs) => {
+        return yargs;
+      },
+      async (argv) => {
+        console.log("bookFetchStart:rnlbookindex");
+
+        const urls = await Nl.indexundownLoad();
+        console.log(urls);
+      let bookindexs=[]
+        for (const item of urls) {
+
+          try {
+            let result =   await Nl.downIndex(item.pageNum);
+            bookindexs.push({ page: item.pageNum, result })
+          } catch (error) {
+            console.log(error)
+            await Deno.writeTextFile(
+              "nlFiles/indexundownLoad.txt",
+              JSON.stringify({
+                pageNum: i,
+             
+              }) + "\n",
+              { append: true },
+            );
+          }
+   
+        }
+
+        let markdown = ''
+
+        let index=1
+        for (const item of bookindexs) {
+          let rsults = item.result
+
+          for (const result of rsults) {
+            markdown += `${index}. ${result.text}\n\n`
+            markdown+=`${result.comment1} ${result.comment2} ${result.comment3} ${result.comment4}\n\n`
+            index++
+          }
+
+
+
+        }
+        await Deno.mkdir("nlFiles", { recursive: true });
+        Deno.writeTextFile(`./nlFiles/bookIndex-补.md`,markdown)
+        console.log("bookFetchEnd:rnlbookindex");
+      },
+    )
+
+    .command(
       "kofetchlist",
       "查看下载详情",
       (yargs) => {
@@ -225,6 +348,8 @@ if (import.meta.main) {
         console.log("bookFetchEnd:kofetchlist");
       },
     )
+
+
 
     .command(
       "kofetch",
