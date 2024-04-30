@@ -1312,6 +1312,79 @@ if (import.meta.main) {
         await Har.config();
       },
     )
+
+    .command(
+      "harbookindex",
+      "下载chinese-rubbings-collection书目下载保存到harFiles/bookindex.md文件",
+      (yargs) => {
+        return yargs.option("start", {
+          type: "string",
+          description: "起始页",
+          alias: "s",
+          demandOption: true,
+        }).option("end", {
+          type: "string",
+          description: "结束页",
+          alias: "e",
+          demandOption: true,
+        });
+
+
+
+        ;
+      },
+      async (argv) => {
+
+        let start = parseInt(argv.start)
+        let end = parseInt(argv.end) 
+
+        let bookindexs = []
+        for (let i = start; i < end+1; i++) {
+          console.log(`正下载第${i}页`)
+          try {
+            let result = await Har.downIndex(i);
+
+            bookindexs.push({ page: i, result })
+            // console.log(bookindexs)
+    
+          } catch (error) {
+            console.log(error)
+            await Deno.writeTextFile(
+              "harFiles/indexundownLoad.txt",
+              JSON.stringify({
+                pageNum: i,
+             
+              }) + "\n",
+              { append: true },
+            );
+          }
+
+
+
+        }
+
+        let markdown = ''
+
+        let index=1
+        for (const item of bookindexs) {
+          let rsults = item.result
+
+          for (const result of rsults) {
+            markdown += `${result.text}\n\n`
+            markdown+=`>${result.comment1}\n\n ${result.comment2} \n\n>${result.comment3}\n\n>${result.comment4}\n\n`
+            index++
+          }
+
+
+
+        }
+        await Deno.mkdir("harFiles", { recursive: true });
+        Deno.writeTextFile(`./harFiles/bookIndex${start}-${end}.md`,markdown)
+        Deno.writeTextFile(`./harFiles/bookIndex.json`,JSON.stringify(bookindexs))
+
+      },
+    )
+
     .command(
       "wafetch",
       "早稻田大学图馆(https://www.wul.waseda.ac.jp/kosho/)",

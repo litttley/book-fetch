@@ -87,9 +87,9 @@ export const generateUrls = async (url, pageStart, pageEnd) => {
 
 export const generateUrlsByManifest = async (url, pageStart, pageEnd) => {
   try {
-   
-   
- 
+
+
+
     const response2 = await fetch(url, {
       method: "GET",
       // responseType: 'stream'
@@ -458,3 +458,88 @@ export const viewDpiManifest = async (id) => {
     throw new Error("获取图片分辨率异常");
   }
 };
+
+
+export const downIndex = async (pageNum) => {
+
+
+
+
+  
+
+  let url = `https://curiosity.lib.harvard.edu/chinese-rare-books/catalog?page=${pageNum}&search_field=all_fields`
+
+  const response = await fetch(url, {
+    method: "GET",
+    // responseType: 'stream'
+    headers: {
+      "Accept":
+        "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+      "Accept-Encoding": "gzip, deflate, br",
+      "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+
+      "Host": "viewer.nl.go.kr",
+      "User-Agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36 Edg/118.0.2088.76",
+      // "Cookie": `${config?.headers?.Cookie}`,
+    },
+  });
+
+  const html = await response.text()
+
+  // console.log(html)
+  const doc = new DOMParser().parseFromString(
+    `
+           ${html}
+          `,
+    "text/html",
+  );
+
+  const elements = doc.querySelectorAll(".documents-list>article");
+
+  //doc.querySelectorAll(".cont_list>.row>.txt_left >a");
+
+  // console.log(elements)
+
+  let pagelist = []
+  for (const ele of elements) {
+    let h3ele = ele.querySelector('.documentHeader  >h3')
+    // let title = ele.getAttribute('title')
+    let aele = h3ele.querySelector('a')
+    let href = aele.getAttribute('href')
+    let text = h3ele.textContent
+
+
+    let content = text.replaceAll('\n', '').replaceAll("             ", ' ').trim()
+    let coardNum = content.split('.')[0]
+    let textArr = content.split(';')
+    var regex = /[\u4e00-\u9fa5]+/g;
+
+    let textArr2 = textArr.filter(item => regex.test(item))
+    let finalText = `${coardNum}.` + textArr2.join(';')
+
+    console.log(finalText)
+
+    let comments = ele.querySelectorAll('.document-metadata>dd')
+    let comment1 = comments[0].textContent
+    let comment2 = comments[1].textContent
+    let comment3 = ''
+    if (comments.length == 3) {
+      comment3 = comments[2].textContent
+    }
+   
+    let comment4 = ''
+    if (comments.length == 4) {
+      comment4 = comments[3].textContent
+    }
+
+
+    pagelist.push({ text: finalText, href, comment1, comment2, comment3, comment4 })
+  }
+
+
+  return pagelist
+
+
+
+}
