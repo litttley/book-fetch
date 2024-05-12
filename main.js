@@ -20,6 +20,8 @@ import * as Bn from "./bn.js";
 import * as An from "./an.js";
 import * as Nla from "./nla.js";
 import * as Kan from "./kansai.js";
+
+import *as Arc from './arc.js'
 // Learn more at https://deno.land/manual/examples/module_metadata#concepts
 if (import.meta.main) {
   yargs(Deno.args)
@@ -3050,6 +3052,90 @@ if (import.meta.main) {
         // }
       },
     )
+
+    .command(
+      "arcbookindex",
+      "下载日本内阁文库汉书书目下载保存到arcFiles/bookindex.md文件",
+      (yargs) => {
+        return yargs.
+        option("num", {
+          type: "string",
+          description: "汉书下各部代号：経の部：1 ,史の部:2,子の部:3 ; 集の部:4;叢書の部:5;新書の部:6",
+          alias: "n",
+          demandOption: true,
+        }).
+        option("start", {
+          type: "string",
+          description: "起始页",
+          alias: "s",
+          demandOption: true,
+        }).option("end", {
+          type: "string",
+          description: "结束页",
+          alias: "e",
+          demandOption: true,
+        });
+
+
+
+        ;
+      },
+      async (argv) => {
+        await Deno.mkdir("arcFiles", { recursive: true });
+        let start = parseInt(argv.start)
+        let end = parseInt(argv.end) 
+        let num = parseInt(argv.num) 
+
+        let bookindexs = []
+        for (let i = start; i < end+1; i++) {
+          console.log(`正下载第${i}页`)
+          try {
+            let result = await Arc.downIndex(num,i);
+
+ 
+
+            bookindexs.push({ page: i, result })
+            // console.log(bookindexs)
+    
+          } catch (error) {
+            console.log(error)
+            await Deno.writeTextFile(
+              "arcFiles/indexundownLoad.txt",
+              JSON.stringify({
+                pageNum: i,
+             
+              }) + "\n",
+              { append: true },
+            );
+          }
+
+
+
+        }
+
+        let markdown = ''
+
+        let index=1
+        for (const item of bookindexs) {
+          let rsults = item.result
+
+          for (const result of rsults) {
+            markdown += `${result.title}\n\n`
+            markdown+=`${result.detail.trim()}\n\n`
+            index++
+          }
+          
+
+
+
+        }
+    
+        Deno.writeTextFile(`./arcFiles/bookIndex${num}-${start}-${end}.md`,markdown)
+        Deno.writeTextFile(`./arcFiles/bookIndex.json`,JSON.stringify(bookindexs))
+
+      },
+    )
+
     .command(
       "actionfetch",
       "运行后端服务",
