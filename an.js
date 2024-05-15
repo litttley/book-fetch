@@ -8,72 +8,72 @@ import {
 import * as ContentDisposition from "npm:@tinyhttp/content-disposition";
 import moment from "npm:moment";
 
- 
 
- 
-export const generateUrls = async (url, pageStart, pageEnd,downType) => {
-    let urls=[]
+
+
+export const generateUrls = async (url, pageStart, pageEnd, downType) => {
+  let urls = []
   try {
- 
- 
-   
-
-    const response = await fetch( url+'?mode=full', {
-        method: "GET",
-        headers: {
-          "Accept":
-            "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-          "Accept-Encoding": "gzip, deflate, br",
-          "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
-    
-          // "Host": "ttps://ostasien.digitale-sammlungen.de/",
-          "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36 Edg/118.0.2088.76",
-          //   "Cookie": `${config?.headers?.Cookie}`,
-        },
-      });
 
 
-      const html= await response.text()
-
-  
 
 
-      const doc = new DOMParser().parseFromString(
-        `
+    const response = await fetch(url + '?mode=full', {
+      method: "GET",
+      headers: {
+        "Accept":
+          "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+
+        // "Host": "ttps://ostasien.digitale-sammlungen.de/",
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36 Edg/118.0.2088.76",
+        //   "Cookie": `${config?.headers?.Cookie}`,
+      },
+    });
+
+
+    const html = await response.text()
+
+
+
+
+    const doc = new DOMParser().parseFromString(
+      `
                  ${html}
                 `,
-        "text/html",
-      );
-    
-      const elements = doc.querySelectorAll("td[headers='t1']>a");
-    
-      let pdfUrls=[]
-      let pdfPage=1
-        let tifUrls=[]
-        let tifPage=1
-        for (const element of elements) {
-            const href = element.getAttribute("href");
-          
-            if(href.startsWith('/bitstream')&&href.endsWith('.pdf')){
-                pdfUrls.push({url:`https://openresearch-repository.anu.edu.au${href}`,page:pdfPage})
-                pdfPage++
-            }
-            if(href.startsWith('/bitstream')&&href.endsWith('.tif')){
-                tifUrls.push({url:`https://openresearch-repository.anu.edu.au${href}`,page:tifPage})
-                tifPage++
-            }
-        }
+      "text/html",
+    );
 
- 
-        const tmpArr=[]
-        if(downType=='pdf'){
-            tmpArr.push(...pdfUrls)
-        }else{
-            tmpArr.push(...tifUrls)
-        }
- 
-      urls = tmpArr .filter((item, index) => {
+    const elements = doc.querySelectorAll("td[headers='t1']>a");
+
+    let pdfUrls = []
+    let pdfPage = 1
+    let tifUrls = []
+    let tifPage = 1
+    for (const element of elements) {
+      const href = element.getAttribute("href");
+
+      if (href.startsWith('/bitstream') && href.endsWith('.pdf')) {
+        pdfUrls.push({ url: `https://openresearch-repository.anu.edu.au${href}`, page: pdfPage })
+        pdfPage++
+      }
+      if (href.startsWith('/bitstream') && href.endsWith('.tif')) {
+        tifUrls.push({ url: `https://openresearch-repository.anu.edu.au${href}`, page: tifPage })
+        tifPage++
+      }
+    }
+
+
+    const tmpArr = []
+    if (downType == 'pdf') {
+      tmpArr.push(...pdfUrls)
+    } else {
+      tmpArr.push(...tifUrls)
+    }
+
+    urls = tmpArr.filter((item, index) => {
       const page = item.page;
       if (page >= pageStart && page <= pageEnd) {
         return true;
@@ -91,8 +91,8 @@ export const generateUrls = async (url, pageStart, pageEnd,downType) => {
   }
 };
 
- 
- 
+
+
 
 export const getCookie = async (url) => {
   const response = await fetch(url, {
@@ -111,10 +111,10 @@ export const getCookie = async (url) => {
   });
 
   let resHeaders = response.headers;
-      // console.log(resHeaders)
-      let cookie = resHeaders.get("set-cookie");
-    return  cookie.split(';')[0]
- 
+  // console.log(resHeaders)
+  let cookie = resHeaders.get("set-cookie");
+  return cookie.split(';')[0]
+
 };
 
 export const downLoadImages = async (urls) => {
@@ -144,16 +144,16 @@ export const downLoadImages = async (urls) => {
   //   }
   // let infoUrl = await  getJsonInfo(urls[0].url)
 
- if(urls.length==0){
+  if (urls.length == 0) {
     throw new Error('下载列表为空')
- }
- const cookie = await getCookie(urls[0].url)
-//  console.log(cookie)
+  }
+  const cookie = await getCookie(urls[0].url)
+  //  console.log(cookie)
 
   for (var i = 0; i < urls.length; i++) {
     try {
       console.log(urls[i].url);
-      
+
 
       const response = await fetch(urls[i].url, {
         method: "GET",
@@ -163,29 +163,29 @@ export const downLoadImages = async (urls) => {
             "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
           "Accept-Encoding": "gzip, deflate, br",
           "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
-    
+
           "Host": "openresearch-repository.anu.edu.au",
-    
+
           "User-Agent":
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36 Edg/118.0.2088.76",
-        "Cookie":`${cookie}`
+          "Cookie": `${cookie}`
         },
       });
       let resHeaders = response.headers;
       // console.log(resHeaders)
       let contentType = resHeaders.get("content-type");
-      let mime='pdf'
-      if(contentType=='application/pdf'){
-        mime='pdf'
-      }else if(contentType=='image/tiff'){
-        mine='tif'
+      let mime = 'pdf'
+      if (contentType == 'application/pdf') {
+        mime = 'pdf'
+      } else if (contentType == 'image/tiff') {
+        mine = 'tif'
       }
       let fileName = resHeaders.get("content-disposition");
- 
-      if(!fileName){
-        fileName='attachment;filename="'+`${urls[i].page}.${mime}`+'"'
+
+      if (!fileName) {
+        fileName = 'attachment;filename="' + `${urls[i].page}.${mime}` + '"'
       }
-     
+
       let contentDisposition = ContentDisposition.parse(fileName);
       let finalFileName = "";
       console.log(contentDisposition?.parameters?.filename);
@@ -194,14 +194,14 @@ export const downLoadImages = async (urls) => {
       } else {
         finalFileName = `未知.${mime}`;
       }
-    
+
       let read = response.body;
-    
+
       const file = await Deno.open(`anFiles/${finalFileName}`, {
         create: true,
         write: true,
       });
-    
+
       await read?.pipeTo(file.writable);
     } catch (error) {
       console.log(error);
@@ -210,7 +210,7 @@ export const downLoadImages = async (urls) => {
         JSON.stringify({
           url: urls[i].url,
           page: urls[i].page,
-       
+
         }) + "\n",
         { append: true },
       );
@@ -219,11 +219,11 @@ export const downLoadImages = async (urls) => {
 
 
   try {
-    await Deno.remove("./anFiles/info.json" );
+    await Deno.remove("./anFiles/info.json");
   } catch (error) {
-    
+
   }
- 
+
 };
 
 export const downLoaddezoomify = async () => {
@@ -428,7 +428,7 @@ export const undownLoad = async () => {
 export const viewDpi = async (id) => {
   const urls = await generateUrls(id, 1, 1);
 
-    console.log(urls)
+  console.log(urls)
 
   const platform = os.platform();
 
@@ -458,11 +458,11 @@ export const viewDpi = async (id) => {
 
 
 
-const getManifest=async (url)=>{
+const getManifest = async (url) => {
 
 
-  const url2=`https://gallica.bnf.fr/services/getSyntheseContent${url.replace('https://gallica.bnf.fr',"")}`
-  const response = await fetch( url2, {
+  const url2 = `https://gallica.bnf.fr/services/getSyntheseContent${url.replace('https://gallica.bnf.fr', "")}`
+  const response = await fetch(url2, {
     method: "GET",
     headers: {
       "Accept":
@@ -482,12 +482,12 @@ const getManifest=async (url)=>{
 
   // console.log(json)
 
- const  href =  json?.fragment.parameters.iiifFragment.contenu
+  const href = json?.fragment.parameters.iiifFragment.contenu
 
-  const realUrl=`https://gallica.bnf.fr/${href}`
+  const realUrl = `https://gallica.bnf.fr/${href}`
 
 
-  const response2 = await fetch( realUrl, {
+  const response2 = await fetch(realUrl, {
     method: "GET",
     headers: {
       "Accept":
@@ -503,24 +503,24 @@ const getManifest=async (url)=>{
   });
   const html2 = await response2.text();
 
- const lines =  html2.split("\n")
- let manifestUrl=''
+  const lines = html2.split("\n")
+  let manifestUrl = ''
   for (const line of lines) {
-      if(line.includes('"target" :')){
-       const  src =  line.replace('"target" :',"").replace(",","").replaceAll('"',"").trim()
+    if (line.includes('"target" :')) {
+      const src = line.replace('"target" :', "").replace(",", "").replaceAll('"', "").trim()
 
-          manifestUrl = decodeURIComponent(src);
-        break
-      }
+      manifestUrl = decodeURIComponent(src);
+      break
+    }
   }
 
- 
 
-  if(manifestUrl==''){
+
+  if (manifestUrl == '') {
     throw new Error("加载manifest.json异常")
   }
 
-  const response3 = await fetch( manifestUrl, {
+  const response3 = await fetch(manifestUrl, {
     method: "GET",
     headers: {
       "Accept":
@@ -534,74 +534,136 @@ const getManifest=async (url)=>{
       //   "Cookie": `${config?.headers?.Cookie}`,
     },
   });
- const manifestObj = await response3.json()
-return  manifestObj
+  const manifestObj = await response3.json()
+  return manifestObj
 
 }
 
 export const viewInfo = async (url) => {
- 
- 
- 
-    try {
 
 
-        const response = await fetch( url+'?mode=full', {
-            method: "GET",
-            headers: {
-              "Accept":
-                "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-              "Accept-Encoding": "gzip, deflate, br",
-              "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
-        
-              // "Host": "ttps://ostasien.digitale-sammlungen.de/",
-              "User-Agent":
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36 Edg/118.0.2088.76",
-              //   "Cookie": `${config?.headers?.Cookie}`,
-            },
-          });
+
+  try {
 
 
-          const html= await response.text()
+    const response = await fetch(url + '?mode=full', {
+      method: "GET",
+      headers: {
+        "Accept":
+          "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
 
-      
+        // "Host": "ttps://ostasien.digitale-sammlungen.de/",
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36 Edg/118.0.2088.76",
+        //   "Cookie": `${config?.headers?.Cookie}`,
+      },
+    });
 
-   
-          const doc = new DOMParser().parseFromString(
-            `
+
+    const html = await response.text()
+
+
+
+
+    const doc = new DOMParser().parseFromString(
+      `
                      ${html}
                     `,
-            "text/html",
-          );
-        
-          const elements = doc.querySelectorAll("td[headers='t1']>a");
-        
-            let pdfUrls=[]
-            let pdfPage=1
-            let tifUrls=[]
-            let tifPage=1
-            for (const element of elements) {
-                const href = element.getAttribute("href");
-              
-                if(href.startsWith('/bitstream')&&href.endsWith('.pdf')){
-                    pdfUrls.push({url:`https://openresearch-repository.anu.edu.au${href}`,page:pdfPage})
-                    pdfPage++
-                }
-                if(href.startsWith('/bitstream')&&href.endsWith('.tif')){
-                    tifUrls.push({url:`https://openresearch-repository.anu.edu.au${href}`,page:tifPage})
-                    tifPage++
-                }
-            }
- 
-  
-   
-   
-  
-  
-      return {pdfUrls,tifUrls};
-    } catch (error) {
-      console.log(error);
-      return [];
+      "text/html",
+    );
+
+    const elements = doc.querySelectorAll("td[headers='t1']>a");
+
+    let pdfUrls = []
+    let pdfPage = 1
+    let tifUrls = []
+    let tifPage = 1
+    for (const element of elements) {
+      const href = element.getAttribute("href");
+
+      if (href.startsWith('/bitstream') && href.endsWith('.pdf')) {
+        pdfUrls.push({ url: `https://openresearch-repository.anu.edu.au${href}`, page: pdfPage })
+        pdfPage++
+      }
+      if (href.startsWith('/bitstream') && href.endsWith('.tif')) {
+        tifUrls.push({ url: `https://openresearch-repository.anu.edu.au${href}`, page: tifPage })
+        tifPage++
+      }
     }
 
-  };
+
+
+
+
+
+    return { pdfUrls, tifUrls };
+  } catch (error) {
+    console.log(error);
+    return [];
+  }
+
+};
+
+
+export const downIndex = async (pageNum) => {
+
+ 
+
+   let  url = `https://openresearch-repository.anu.edu.au/handle/1885/9199?offset=${pageNum}`
+ 
+
+  console.log(url)
+
+  const response = await fetch(url, {
+    method: "GET",
+    // responseType: 'stream'
+    headers: {
+      "Accept":
+        "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+      "Accept-Encoding": "gzip, deflate, br",
+      "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+
+      "Host": "viewer.nl.go.kr",
+      "User-Agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36 Edg/118.0.2088.76",
+      // "Cookie": `${config?.headers?.Cookie}`,
+    },
+  });
+
+  const html = await response.text()
+
+  // console.log(html)
+  const doc = new DOMParser().parseFromString(
+    `
+             ${html}
+            `,
+    "text/html",
+  );
+
+  const elements = doc.querySelectorAll(".doublewide>div");
+  let pagelist = []
+  let index = 0
+  for (const ele of elements) {
+    if (index >= 2 && index <= 21) {
+      let aele = ele.querySelector('h3>a')
+      let title = aele.textContent
+      console.log(title)
+      let tdEles = ele.querySelectorAll('td')
+      let detail = ''
+      for (const ele2 of tdEles) {
+        let text = ele2.textContent
+        detail += ` ${text} `
+      }
+
+      pagelist.push({ title, detail })
+
+    }
+
+    index++
+
+
+  }
+  return pagelist
+}

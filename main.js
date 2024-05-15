@@ -2594,7 +2594,7 @@ if (import.meta.main) {
     )
 
     .command(
-      "nifetchdpi",
+      "anfetchdpi",
       "查看图片分辨率详情",
       (yargs) => {
         return yargs.option("id", {
@@ -2657,6 +2657,88 @@ if (import.meta.main) {
         // } else {
         //   console.log('已全完下载!')
         // }
+      },
+    )
+
+
+    
+    .command(
+      "anbookindex",
+      "下载澳大利亚国立大学图书馆中文书目下载保存到anFiles/bookindex.md文件",
+      (yargs) => {
+        return yargs.
+       
+        option("start", {
+          type: "string",
+          description: "起始页",
+          alias: "s",
+          demandOption: true,
+        }).option("end", {
+          type: "string",
+          description: "结束页(当面460/20=23页)",
+          alias: "e",
+          demandOption: true,
+        });
+
+
+
+        ;
+      },
+      async (argv) => {
+        await Deno.mkdir("anFiles", { recursive: true });
+        let start = parseInt(argv.start)
+        let end = parseInt(argv.end) 
+        let num = parseInt(argv.num) 
+
+        let bookindexs = []
+        for (let i = start; i < end+1; i++) {
+          console.log(`正下载第${i}页`)
+          try {
+            let pageNum=(i-1)*20
+            let result = await An.downIndex(pageNum);
+
+ 
+      
+
+            bookindexs.push({ page: i, result })
+            // console.log(bookindexs)
+            // break
+          } catch (error) {
+            console.log(error)
+            await Deno.writeTextFile(
+              "anFiles/indexundownLoad.txt",
+              JSON.stringify({
+                pageNum: i,
+             
+              }) + "\n",
+              { append: true },
+            );
+          }
+
+
+
+        }
+
+        let markdown = ''
+
+        let index=1
+        for (const item of bookindexs) {
+          let rsults = item.result
+
+          for (const result of rsults) {
+            markdown += `${result.title}\n\n`
+            markdown+=`${result.detail.trim()}\n\n`
+            index++
+          }
+          
+
+
+
+        }
+    
+        Deno.writeTextFile(`./anFiles/bookIndex${num}-${start}-${end}.md`,markdown)
+        Deno.writeTextFile(`./anFiles/bookIndex.json`,JSON.stringify(bookindexs))
+
       },
     )
 
