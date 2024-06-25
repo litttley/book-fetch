@@ -3714,6 +3714,12 @@ if (import.meta.main) {
       "生成配置文件(位于kaFiles/kaConfig.toml)\n",
     )
 
+    .example("wiki共享")
+    .example(
+      "book-fetch.exe kafetch -i File:SBL064_%E5%A4%96%E8%87%BA%E7%A7%98%E8%A6%81%E6%96%B9.pdf    -s 1  -e 1   ",
+      "bofetch说明: ",
+    )
+    .example("book-fetch.exe rwikifetch", "重试")
     .strictCommands()
     .scriptName("book-fetch.exe")
     .version("v1.0.0")
