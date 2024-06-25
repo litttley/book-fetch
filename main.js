@@ -21,6 +21,8 @@ import * as An from "./an.js";
 import * as Nla from "./nla.js";
 import * as Kan from "./kansai.js";
 
+import * as Wiki from "./wikimedia.js";
+
 import *as Arc from './arc.js'
 // Learn more at https://deno.land/manual/examples/module_metadata#concepts
 if (import.meta.main) {
@@ -3132,6 +3134,99 @@ if (import.meta.main) {
         // } else {
         //   console.log('已全完下载!')
         // }
+      },
+    )
+
+
+    .command(
+      "wikifetch",
+      "維基共享(https://commons.wikimedia.org/wiki/Category:Scans_from_the_Seikado_Bunko_Library?uselang=zh-tw)",
+      (yargs) => {
+        return yargs
+          .option("id", {
+            type: "string",
+            description: "文件id",
+            alias: "i",
+            demandOption: true,
+          })
+
+          .option("start", {
+            type: "string",
+            description: "起始页",
+            alias: "s",
+            demandOption: true,
+          }).option("end", {
+            type: "string",
+            description: "终止页",
+            alias: "e",
+            demandOption: true,
+          })
+
+          .option("maxWidth", {
+            type: "string",
+            description: "文件宽限制(默认下载最大)",
+            alias: "w",
+            // demandOption: true,
+          })
+          .option("maxHeight", {
+            type: "string",
+            description: "文件宽限制(默认下载最大)",
+            alias: "w",
+            // demandOption: true,
+          })
+
+          ;
+      },
+      async (argv) => {
+        // console.log(argv)
+
+        console.log("bookFetchStart:wikifetch");
+
+
+
+
+
+        const urls = await Wiki.generateUrls(
+          argv.id,
+
+          // parseInt(argv.vol),
+          parseInt(argv.start),
+          parseInt(argv.end),
+        );
+
+        let consoleText = urls.map((item) => `${item.url} page=${item.page}`)
+          .join("\n");
+        console.log(consoleText);
+
+
+        await Deno.mkdir("wikiFiles", { recursive: true });
+ 
+
+        await Wiki.downLoadImages(urls);
+ 
+      },
+    )
+
+    .command(
+      "rwikifetch",
+      "如果有失败记录(文件位于wikiFiles/undownLoad.txt)则重新下载,每次操作完成后需要手动删除历史记录,然后再下",
+      (yargs) => {
+        return yargs;
+      },
+      async (argv) => {
+        console.log("bookFetchStart:rwikifetch");
+        const urls = await Wiki.undownLoad();
+        console.log(urls);
+
+        if (urls.length > 0) {
+        
+          // const NewCommand=[...command,'-H','Referer:https://digital.staatsbibliothek-berlin.de/','-H','User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0']
+          await Wiki.downLoadImages(urls);
+        } else {
+          console.log("已全完下载!");
+        }
+
+        console.log("bookFetchEnd:rwikifetch");
       },
     )
 
