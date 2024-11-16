@@ -291,7 +291,7 @@ export const downIndex = async (pageNum) => {
       "text/html",
     );
 
-    const elements = doc.querySelectorAll(".cont_list>.row");
+    const elements = doc.querySelectorAll("pre>code");
 
     //doc.querySelectorAll(".cont_list>.row>.txt_left >a");
 
