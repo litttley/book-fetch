@@ -7,6 +7,7 @@ import * as Ko from "./kostma.js";
 import * as GitHubAction from "./githubAction.js";
 import * as Aks from "./aks.js";
 import * as RM from "./rmda.js";
+import * as KY from "./kyoto.js";
 import * as Gshare from "./gshare.js";
 import * as Loc from "./loc.js";
 import * as Dig from "./digital.js";
@@ -680,6 +681,98 @@ if (import.meta.main) {
         console.log("bookFetchEnd:akfetchdpi");
       },
     )
+
+    .command(
+      "kyfetch",
+      "京都大学人文科学研究所 图书馆(http://kanji.zinbun.kyoto-u.ac.jp/db-machine/toho/html/top.html)",
+      (yargs) => {
+        return yargs
+          .option("url", {
+            type: "string",
+            description: "文件url",
+            alias: "u",
+            demandOption: true,
+          })
+          .option("type", {
+            type: "string",
+            description: "文件类型(-t s 小图 -t l 大图)",
+            alias: "u",
+            demandOption: true,
+          })
+          .option("start", {
+            type: "string",
+            description: "起始页",
+            alias: "s",
+            demandOption: true,
+          }).option("end", {
+            type: "string",
+            description: "终止页",
+            alias: "e",
+            demandOption: true,
+          })
+      
+         
+      },
+      async (argv) => {
+        console.log(argv);
+        console.log("bookFetchStart:kyfetch");
+        // Aks()
+
+        let type="L"
+        if(argv.type=="s"){
+          type="S"
+        }
+        const urls = await KY.generateUrls(
+          argv.url,
+          parseInt(argv.start),
+          parseInt(argv.end),
+          type
+        );
+       
+ 
+
+        console.log(urls);
+
+        await Deno.mkdir("kyFiles", { recursive: true });
+        await KY.downLoadImages(urls);
+
+        console.log("bookFetchEnd:kyfetch");
+      },
+    )
+
+    .command(
+      "rkyfetch",
+      "如果有失败记录(文件位于kyFiles/undownLoad.txt)则重新下载,每次操作完成后需要手动删除历史记录,然后再下",
+      (yargs) => {
+        return yargs;
+      },
+      async (argv) => {
+        console.log("bookFetchStart:kyfetch");
+        const urls = await KY.undownLoad();
+
+        if (urls) {
+          let command = urls[0].command;
+
+          await KY.downLoadImages(urls, command);
+        } else {
+          console.log("已全完下载!");
+        }
+
+        console.log("bookFetchEnd:kyfetch");
+      },
+    )
+
+    .command(
+      "kyconfig",
+      "kyconfig.json(文件位于kyFiles/kyconfig.toml)\n",
+      (yargs) => {
+        return yargs;
+      },
+      async (argv) => {
+        await KY.config();
+      },
+    )
+
     .command(
       "rmfetch",
       "下载京都大学(https://rmda.kulib.kyoto-u.ac.jp/)",
@@ -748,6 +841,10 @@ if (import.meta.main) {
         console.log("bookFetchEnd:rmfetch");
       },
     )
+
+   
+
+     
     .command(
       "rrmfetch",
       "如果有失败记录(文件位于aksFiles/undownLoad.txt)则重新下载,每次操作完成后需要手动删除历史记录,然后再下",
@@ -3542,6 +3639,19 @@ if (import.meta.main) {
       "book-fetch.exe rmconfig ",
       "生成配置文件(位于rmFiles/rmConfig.toml)\n",
     )
+
+    .example("京都大学人文科学研究所 图书馆:")
+    .example(
+      "book-fetch.exe kyfetch -u http://kanji.zinbun.kyoto-u.ac.jp/db-machine/toho/ShiSanJingZhuShu/html/A0030001.html -s 1 -e 2 ",
+      "kyfetch说明:-t: s或l 参数可选",
+    )
+ 
+    .example("book-fetch.exe rkykfetch", "rkykfetch示例")
+    .example(
+      "book-fetch.exe kyconfig ",
+      "生成配置文件(位于kyFiles/kyConfig.toml)\n",
+    )
+
     .example("谷歌云盘使用说明:")
     .example(
       'book-fetch.exe gshare  -u "https://drive.google.com/file/d/1oIMIKhztjQXr-t6z19BAbJw5yFekLoJ4/view?usp=sharing"\n',
