@@ -1,7 +1,7 @@
 // Octokit.js
 // https://github.com/octokit/core.js#readme
 
-import { App, Octokit } from "https://esm.sh/octokit?dts";
+import { App, Octokit } from "https://esm.sh/octokit@4.0.2?dts";
 
 export const openIssue = async ({ title, body, config }) => {
   /**
